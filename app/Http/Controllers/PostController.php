@@ -71,6 +71,12 @@ class PostController extends Controller
             "title" => "Certificates",
         ]);
     }
+
+    public function resume()
+    {
+        return view('resume');
+    }
+
     public function contact()
     {
         return view('contact',[

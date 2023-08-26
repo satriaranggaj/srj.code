@@ -10,11 +10,11 @@
         </div>
         <div class="foot-link">
             <ul>
-                <li class ="{{ ($title === "Bio") ? 'active' : '' }}"><a class="navbar-link" href="http://127.0.0.1:8000/about">Bio</a></li>
-                <li class ="{{ ($title === "Projects") ? 'active' : '' }}"><a class="navbar-link" href="http://127.0.0.1:8000/projects">Project</a></li>
-                <li class ="{{ ($title === "Blog") ? 'active' : '' }}"><a class="navbar-link" href="http://127.0.0.1:8000/blog">Blog</a></li>
-                <li class ="{{ ($title === "Certificates") ? 'active' : '' }}"><a class="navbar-link" href="http://127.0.0.1:8000/certificates">Certificates</a></li>
-                <li class ="{{ ($title === "Resume") ? 'active' : '' }}"><a class="navbar-link" href="resume.html" target="_blank">Resume</a></li>
+                <li class ="{{ ($title === "Bio") ? 'active' : '' }}"><a class="navbar-link" href="/about">Bio</a></li>
+                <li class ="{{ ($title === "Projects") ? 'active' : '' }}"><a class="navbar-link" href="/projects">Project</a></li>
+                <li class ="{{ ($title === "Blog") ? 'active' : '' }}"><a class="navbar-link" href="/blog">Blog</a></li>
+                <li class ="{{ ($title === "Certificates") ? 'active' : '' }}"><a class="navbar-link" href="/certificates">Certificates</a></li>
+                <li class ="{{ ($title === "Resume") ? 'active' : '' }}"><a class="navbar-link" href="/resume" target="_blank">Resume</a></li>
             </ul>
         </div>
         <div class="others">
