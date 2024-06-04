@@ -1,0 +1,13 @@
+.logo {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+.logo a {
+  text-decoration: none;
+}
+.logo a h1 {
+  color: white;
+  font-weight: bold;
+  font-size: xx-large;
+}/*# sourceMappingURL=navigation.css.map */

@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="frontend/libraries/fontawesome/css/all.min.css">
     <!-- fontawesome -->
     <!-- my css -->
-    <link rel="stylesheet" href="frontend/style/main/main.css">
+    <link rel="stylesheet" href="{{ asset('frontend/style/main/main.css') }}">
     <link rel="stylesheet" href="frontend/style/navbar/navbar.css">
     <link rel="stylesheet" href="frontend/style/footer/footer.css">
     <link rel="stylesheet" href="frontend/style/responsive/responsive.css">
@@ -31,10 +31,10 @@
     </main>
     @include('partials.footer')
     <!-- myscript -->
-    <script src="frontend/script/main.js"></script>
+    <script src="{{ asset('script/main.js') }}"></script>
     <!-- myscript -->
     <!-- jquery -->
-    <script src="frontend/libraries/jquery/jquery-3.6.4.min.js"></script>
+    <script src="{{ asset('libraries/jquery/jquery-3.7.0.min.js') }}"></script>
     <!-- jquery -->
 </body>
 </html>

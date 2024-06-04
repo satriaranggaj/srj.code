@@ -10,10 +10,12 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      */
-    protected function schedule(Schedule $schedule): void
+
+    protected function scheduleTimezone()
     {
-        // $schedule->command('inspire')->hourly();
+        return 'Asia/Jakarta'; // Sesuaikan dengan zona waktu Anda
     }
+
 
     /**
      * Register the commands for the application.
@@ -24,4 +26,5 @@ class Kernel extends ConsoleKernel
 
         require base_path('routes/console.php');
     }
+
 }
