@@ -224,7 +224,7 @@
     min-width: 100%;
     min-height: -moz-fit-content;
     min-height: fit-content;
-    margin: 25px;
+    margin: 25px auto;
     padding-bottom: 25px;
     background-color: white;
     border-radius: 10px;
@@ -660,7 +660,7 @@
     min-width: 100%;
     min-height: -moz-fit-content;
     min-height: fit-content;
-    margin: 25px;
+    margin: 25px auto;
     padding-bottom: 25px;
     background-color: white;
     border-radius: 10px;

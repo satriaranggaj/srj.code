@@ -66,7 +66,7 @@ body{
             margin-bottom: 50px;
             p{
                 font-size: calc(.3vw + .7rem);
-                text-align: justify;  
+                text-align: justify;
             }
         }
         .skill-carousel {
@@ -77,7 +77,7 @@ body{
             .carousel-content {
                 display: flex;
                 flex-wrap: nowrap;
-                animation: scrollAnimation 10s linear infinite; /* Sesuaikan kecepatan dan durasi scroll */
+                animation: scrollAnimation 10s linear infinite;
                 will-change: transform;
 
                 .carousel-slide{
@@ -93,7 +93,7 @@ body{
                 }
               }
           }
-          
+
           /* Animasi scroll */
           @keyframes scrollAnimation {
             0% {
@@ -140,7 +140,7 @@ body{
                     max-height: 200px;
                     max-width: 350px;
                     overflow: hidden;
-                    
+
                     iframe{
                         width: 340%;
                         height: 675px;
@@ -241,7 +241,7 @@ body{
 //                     }
 //                     .date{
 //                         margin: 0 0 0 15px;
-                        
+
 //                         p{
 //                             font-size: calc(.1vw + .7rem);
 //                             color: rgba(0, 0, 0, 0.3);
@@ -299,7 +299,7 @@ body{
         .title{
             h3{
                 color: #2e9cca;
-                font-weight: bold;  
+                font-weight: bold;
             }
         }
         form{
@@ -324,7 +324,7 @@ body{
             h1{
                 color: #2e9cca;
                 font-weight: 900;
-                margin: 0;  
+                margin: 0;
             }
     }
         .data-diri{
@@ -347,7 +347,7 @@ body{
     width: 100%;
     background-color: #25274d;
     color: white;
-    padding: 50px 25px 50px 25px ;
+    padding: 50px ;
     margin-top: 100px;
 
     .container{
@@ -356,7 +356,7 @@ body{
             h1{
                 color: #2e9cca;
                 font-weight: 900;
-                margin: 0;  
+                margin: 0;
             }
         }
         .content{
@@ -381,7 +381,7 @@ body{
                     height: 200px;
                     max-width: 350px;
                     overflow: hidden;
-                    
+
                     iframe{
                         width: 340%;
                         height: 675px;
@@ -486,7 +486,7 @@ body{
 //                     }
 //                     .date{
 //                         margin: 0 0 0 15px;
-                        
+
 //                         p{
 //                             font-size: calc(.1vw + .7rem);
 //                             color: rgba(0, 0, 0, 0.3);

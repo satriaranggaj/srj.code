@@ -10,14 +10,14 @@
                 display: flex;
                 flex-direction: column;
                 width: 100%;
-    
+
                 .left-project{
                     width: 100%;
                     display: flex;
                     justify-content: center;
                     align-items: center;
                     margin-bottom: 50px;
-    
+
                     .project-card{
                         max-height: 350px;
                         width: 100%;
@@ -28,7 +28,7 @@
                         border-radius: 15px;
                         padding: calc(3vw + 15rem) 25px 25px 25px;
                         text-align: start;
-    
+
                         a{
                             color: white;
                             font-size: 1rem;
@@ -42,18 +42,18 @@
                 .right-project{
                     width: 100%;
                     display: flex;
-                    
+
                     .container-project{
                         width: calc(100% / 3);
                         margin: 0 10px;
                         display: flex;
                         flex-direction: column;
-    
+
                         .project-card{
                             width: 250px;
                             height: 75px;
                             display: flex;
-    
+
                             .thumbnail{
                                 height: 75px;
                                 width: 75px;
@@ -121,7 +121,7 @@
             border: solid 1px #2e9cca;
             border-radius: 10px;
             transition: all .3s;
-            
+
             a{
                 text-decoration: none;
                 color: #2e9cca;
@@ -135,7 +135,7 @@
         @keyframes toggleAnimasi {
             from{
                 opacity: 0;
-                transform: translateX(100%);  
+                transform: translateX(100%);
             }
             to{
                 opacity: 1;
@@ -179,7 +179,7 @@
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-    
+
                 .blog-card{
                     max-width: 500px;
                     max-height: 475px;
@@ -189,7 +189,7 @@
                     color: black;
                     border-radius: 15px;
                     overflow: hidden;
-    
+
                     .thumbnail{
                         max-height: 250px;
                         overflow: hidden;
@@ -207,7 +207,7 @@
                         }
                         .desc{
                             margin: 0 15px 25px 15px;
-    
+
                             p{
                                 font-size: calc(.1vw + .7rem);
                                 text-align: start;
@@ -226,7 +226,7 @@
                             border-radius: 10px;
                             border: solid 1px #25274d;
                             transition: .3s;
-    
+
                             a{
                                 color: white;
                                 text-decoration: none;
@@ -236,7 +236,7 @@
                             background-color: transparent;
                             line-height: 35px;
                             border-radius: 10px;
-    
+
                             a{
                                 color: #25274d;
                                 text-decoration: none;
@@ -256,12 +256,12 @@
                 .project-card{
                     min-width: 100%;
                     min-height: fit-content;
-                    margin: 25px;
+                    margin: 25px auto;
                     padding-bottom: 25px;
                     background-color: white;
                     border-radius: 10px;
                     overflow: hidden;
-    
+
                     .picture{
                         min-height: 150px;
                         max-height: 350px;
@@ -292,7 +292,7 @@
                         justify-content: center;
                         border: 1px solid #25274d;
                         border-radius: 5px;
-    
+
                         a{
                             text-decoration: none;
                             color: white;
@@ -330,7 +330,7 @@
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-    
+
                 .blog-card{
                     max-width: 500px;
                     max-height: 475px;
@@ -340,7 +340,7 @@
                     color: black;
                     border-radius: 15px;
                     overflow: hidden;
-    
+
                     .thumbnail{
                         max-height: 250px;
                         overflow: hidden;
@@ -358,7 +358,7 @@
                         }
                         .desc{
                             margin: 0 15px 25px 15px;
-    
+
                             p{
                                 font-size: calc(.1vw + .7rem);
                                 text-align: start;
@@ -377,7 +377,7 @@
                             border-radius: 10px;
                             border: solid 1px #25274d;
                             transition: .3s;
-    
+
                             a{
                                 color: white;
                                 text-decoration: none;
@@ -387,7 +387,7 @@
                             background-color: transparent;
                             line-height: 35px;
                             border-radius: 10px;
-    
+
                             a{
                                 color: #25274d;
                                 text-decoration: none;
@@ -407,14 +407,14 @@
                 display: flex;
                 flex-direction: column;
                 width: 100%;
-    
+
                 .left-project{
                     width: 100%;
                     display: flex;
                     justify-content: center;
                     align-items: center;
                     margin-bottom: 50px;
-    
+
                     .project-card{
                         max-height: 350px;
                         width: 100%;
@@ -425,7 +425,7 @@
                         border-radius: 15px;
                         padding: calc(3vw + 15rem) 25px 25px 25px;
                         text-align: start;
-    
+
                         a{
                             color: white;
                             font-size: 1rem;
@@ -441,19 +441,19 @@
                     display: flex;
                     justify-content: space-evenly;
                     flex-wrap: wrap;
-                    
+
                     .container-project{
                         width: calc(100% / 3);
                         margin: 0 10px;
                         display: flex;
                         flex-direction: column;
-    
+
                         .project-card{
                             width: 100%;
                             height: 75px;
                             display: flex;
                             margin: 10px 0;
-    
+
                             .thumbnail{
                                 height: 75px;
                                 width: 75px;
@@ -515,14 +515,14 @@
                 display: flex;
                 flex-direction: column;
                 width: 100%;
-    
+
                 .left-project{
                     width: 100%;
                     display: flex;
                     justify-content: center;
                     align-items: center;
                     margin-bottom: 50px;
-    
+
                     .project-card{
                         max-height: 250px;
                         width: 100%;
@@ -533,7 +533,7 @@
                         border-radius: 15px;
                         padding: calc(3vw + 5rem) 25px 25px 25px;
                         text-align: start;
-    
+
                         a{
                             color: white;
                             font-size: 1rem;
@@ -548,19 +548,19 @@
                     width: 100%;
                     display: flex;
                     flex-direction: column;
-                    
+
                     .container-project{
                         width: 100%;
                         margin: 0 10px;
                         display: flex;
                         flex-direction: column;
-    
+
                         .project-card{
                             width: 100%;
                             height: 75px;
                             display: flex;
                             margin: 10px 0;
-    
+
                             .thumbnail{
                                 height: 75px;
                                 width: 75px;
@@ -625,7 +625,7 @@
             border: solid 1px #2e9cca;
             border-radius: 10px;
             transition: all .3s;
-            
+
             a{
                 text-decoration: none;
                 color: #2e9cca;
@@ -639,7 +639,7 @@
         @keyframes toggleAnimasi {
             from{
                 opacity: 0;
-                transform: translateX(100%);  
+                transform: translateX(100%);
             }
             to{
                 opacity: 1;
@@ -701,7 +701,7 @@
             border: solid 1px #2e9cca;
             border-radius: 10px;
             transition: all .3s;
-            
+
             a{
                 text-decoration: none;
                 color: #2e9cca;
@@ -715,7 +715,7 @@
         @keyframes toggleAnimasi {
             from{
                 opacity: 0;
-                transform: translateX(100%);  
+                transform: translateX(100%);
             }
             to{
                 opacity: 1;
@@ -748,12 +748,12 @@
                 .project-card{
                     min-width: 100%;
                     min-height: fit-content;
-                    margin: 25px;
+                    margin: 25px auto;
                     padding-bottom: 25px;
                     background-color: white;
                     border-radius: 10px;
                     overflow: hidden;
-    
+
                     .picture{
                         min-height: 100px;
                         max-height: 100px;
@@ -784,7 +784,7 @@
                         justify-content: center;
                         border: 1px solid #25274d;
                         border-radius: 5px;
-    
+
                         a{
                             text-decoration: none;
                             color: white;
