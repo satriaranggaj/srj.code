@@ -18,6 +18,7 @@ window.onscroll = function(){
       });
 };
 
+
 const scriptURL = 'https://script.google.com/macros/s/AKfycbyuqtPPjFO-zXGSp1JRUhtDHuC43HdpaAVgNjsAAPHWGFOjgjiAqk5U4IEnjf9Q37QL/exec';
 const form = document.forms['submit-to-google-sheet']
 const btnSubmit = document.querySelector('.btn-submit');
@@ -43,3 +44,4 @@ form.addEventListener('submit', e => {
     })
     .catch(error => console.error('Error!', error.message))
   });
+

@@ -90,21 +90,21 @@
   }
   nav#navbar .button-contact {
     cursor: pointer;
-    height: 70px;
-    width: 175px;
-    padding: 23px 0;
+    height: 50px;
+    width: 150px;
+    padding: 15px 0;
     display: none;
     justify-content: center;
     visibility: hidden;
     opacity: 0;
     transform: translate(100%, 0);
-    border: solid 1px #2e9cca;
+    border: solid 1px white;
     border-radius: 10px;
     transition: all 0.3s;
   }
   nav#navbar .button-contact a {
     text-decoration: none;
-    color: #2e9cca;
+    color: white;
   }
   nav#navbar .menu-toggle {
     display: flex;
@@ -133,88 +133,10 @@
     opacity: 1;
     height: 85vh;
     min-width: 60%;
-    margin-top: 100px;
-    background-color: #25274d;
+    margin-top: 70px;
+    background-color: rgb(25, 25, 25);
     transform: translate(0, 0);
     transition: all 0.3s;
-  }
-  #blog {
-    min-height: 500px;
-    width: 100%;
-    background-color: #25274d;
-    color: white;
-    padding: 50px 25px 50px 25px;
-  }
-  #blog .container .title {
-    margin-bottom: 75px;
-  }
-  #blog .container .title h3 {
-    color: #2e9cca;
-    font-weight: bold;
-  }
-  #blog .container .content {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  #blog .container .content .blog-card {
-    max-width: 500px;
-    max-height: 475px;
-    padding-bottom: 25px;
-    margin: 25px 0;
-    background-color: white;
-    color: black;
-    border-radius: 15px;
-    overflow: hidden;
-  }
-  #blog .container .content .blog-card .thumbnail {
-    max-height: 250px;
-    overflow: hidden;
-  }
-  #blog .container .content .blog-card .thumbnail img {
-    width: 100%;
-  }
-  #blog .container .content .blog-card .teks .title {
-    margin: 10px 0 10px 15px;
-  }
-  #blog .container .content .blog-card .teks .title h5 {
-    color: #25274d;
-    font-weight: bold;
-  }
-  #blog .container .content .blog-card .teks .desc {
-    margin: 0 15px 25px 15px;
-  }
-  #blog .container .content .blog-card .teks .desc p {
-    font-size: calc(0.1vw + 0.7rem);
-    text-align: start;
-    display: -webkit-box;
-    -webkit-line-clamp: 5;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  #blog .container .content .blog-card .teks .button-more {
-    cursor: pointer;
-    height: 35px;
-    width: 150px;
-    background-color: #25274d;
-    line-height: 35px;
-    border-radius: 10px;
-    border: solid 1px #25274d;
-    transition: 0.3s;
-  }
-  #blog .container .content .blog-card .teks .button-more a {
-    color: white;
-    text-decoration: none;
-  }
-  #blog .container .content .blog-card .teks .button-more:hover {
-    background-color: transparent;
-    line-height: 35px;
-    border-radius: 10px;
-  }
-  #blog .container .content .blog-card .teks .button-more:hover a {
-    color: #25274d;
-    text-decoration: none;
   }
   #project-page .container .content {
     display: flex;
@@ -246,19 +168,19 @@
     width: 100%;
   }
   #project-page .container .content .project-card .title h5 {
-    color: #25274d;
+    color: rgb(25, 25, 25);
     font-weight: bold;
   }
   #project-page .container .content .project-card .button-more {
     cursor: pointer;
     height: 35px;
     width: 125px;
-    background-color: #25274d;
+    background-color: rgb(25, 25, 25);
     margin-left: 25px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #25274d;
+    border: 1px solid rgb(25, 25, 25);
     border-radius: 5px;
   }
   #project-page .container .content .project-card .button-more a {
@@ -270,87 +192,8 @@
     transition: all 0.3s;
   }
   #project-page .container .content .project-card .button-more:hover a {
-    color: #25274d;
+    color: rgb(25, 25, 25);
     transition: all 0.3s;
-  }
-  #blog-page {
-    min-height: 300px;
-    width: 100%;
-    background-color: #25274d;
-    color: white;
-    padding: 50px 25px 50px 25px;
-    margin-top: 100px;
-  }
-  #blog-page .container .title {
-    margin-bottom: 75px;
-  }
-  #blog-page .container .title h1 {
-    color: #2e9cca;
-    font-weight: bold;
-  }
-  #blog-page .container .content {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  #blog-page .container .content .blog-card {
-    max-width: 500px;
-    max-height: 475px;
-    padding-bottom: 25px;
-    margin: 25px 0;
-    background-color: white;
-    color: black;
-    border-radius: 15px;
-    overflow: hidden;
-  }
-  #blog-page .container .content .blog-card .thumbnail {
-    max-height: 250px;
-    overflow: hidden;
-  }
-  #blog-page .container .content .blog-card .thumbnail img {
-    width: 100%;
-  }
-  #blog-page .container .content .blog-card .teks .title {
-    margin: 10px 0 10px 15px;
-  }
-  #blog-page .container .content .blog-card .teks .title h5 {
-    color: #25274d;
-    font-weight: bold;
-  }
-  #blog-page .container .content .blog-card .teks .desc {
-    margin: 0 15px 25px 15px;
-  }
-  #blog-page .container .content .blog-card .teks .desc p {
-    font-size: calc(0.1vw + 0.7rem);
-    text-align: start;
-    display: -webkit-box;
-    -webkit-line-clamp: 5;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  #blog-page .container .content .blog-card .teks .button-more {
-    cursor: pointer;
-    height: 35px;
-    width: 150px;
-    background-color: #25274d;
-    line-height: 35px;
-    border-radius: 10px;
-    border: solid 1px #25274d;
-    transition: 0.3s;
-  }
-  #blog-page .container .content .blog-card .teks .button-more a {
-    color: white;
-    text-decoration: none;
-  }
-  #blog-page .container .content .blog-card .teks .button-more:hover {
-    background-color: transparent;
-    line-height: 35px;
-    border-radius: 10px;
-  }
-  #blog-page .container .content .blog-card .teks .button-more:hover a {
-    color: #25274d;
-    text-decoration: none;
   }
 }
 @media screen and (max-width: 900px) {
@@ -533,21 +376,21 @@
   }
   nav#navbar .button-contact {
     cursor: pointer;
-    height: 70px;
-    width: 175px;
-    padding: 23px 0;
+    height: 50px;
+    width: 150px;
+    padding: 15px 0;
     display: none;
     justify-content: center;
     visibility: hidden;
     opacity: 0;
     transform: translate(100%, 0);
-    border: solid 1px #2e9cca;
+    border: solid 1px white;
     border-radius: 10px;
     transition: all 0.3s;
   }
   nav#navbar .button-contact a {
     text-decoration: none;
-    color: #2e9cca;
+    color: white;
   }
   nav#navbar .menu-toggle {
     display: flex;
@@ -576,8 +419,8 @@
     opacity: 1;
     height: 85vh;
     min-width: 100%;
-    margin-top: 100px;
-    background-color: #25274d;
+    margin-top: 70px;
+    background-color: rgb(25, 25, 25);
     transform: translate(0, 0);
     transition: all 0.3s;
   }
@@ -605,21 +448,21 @@
   }
   nav#navbar .button-contact {
     cursor: pointer;
-    height: 70px;
-    width: 175px;
-    padding: 23px 0;
+    height: 50px;
+    width: 150px;
+    padding: 15px 0;
     display: none;
     justify-content: center;
     visibility: hidden;
     opacity: 0;
     transform: translate(100%, 0);
-    border: solid 1px #2e9cca;
+    border: solid 1px white;
     border-radius: 10px;
     transition: all 0.3s;
   }
   nav#navbar .button-contact a {
     text-decoration: none;
-    color: #2e9cca;
+    color: white;
   }
   nav#navbar .menu-toggle {
     display: flex;
@@ -647,8 +490,8 @@
     opacity: 1;
     height: 85vh;
     min-width: 100%;
-    margin-top: 100px;
-    background-color: #25274d;
+    margin-top: 70px;
+    background-color: rgb(25, 25, 25);
     transform: translate(0, 0);
     transition: all 0.3s;
   }
@@ -682,19 +525,19 @@
     width: 100%;
   }
   #project-page .container .content .project-card .title h5 {
-    color: #25274d;
+    color: rgb(25, 25, 25);
     font-weight: bold;
   }
   #project-page .container .content .project-card .button-more {
     cursor: pointer;
     height: 35px;
     width: 125px;
-    background-color: #25274d;
+    background-color: rgb(25, 25, 25);
     margin-left: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #25274d;
+    border: 1px solid rgb(25, 25, 25);
     border-radius: 5px;
   }
   #project-page .container .content .project-card .button-more a {
@@ -706,7 +549,7 @@
     transition: all 0.3s;
   }
   #project-page .container .content .project-card .button-more:hover a {
-    color: #25274d;
+    color: rgb(25, 25, 25);
     transition: all 0.3s;
   }
 }/*# sourceMappingURL=responsive.css.map */

@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('container')   
+@section('container')
 <section id="biografi">
     <div class="container">
         <div class="title">

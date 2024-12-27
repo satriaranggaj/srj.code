@@ -1,15 +1,25 @@
 body{
     font-family: 'Caveat', cursive;
     font-family: 'Inter', sans-serif;
+    cursor: default;
+    background: rgb(25, 25, 25);
 }
 #bio{
+    background: linear-gradient(-75deg, white, rgba(100, 100, 100, 1), white);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: shinyTextTwo 10s linear infinite;
     min-height: 300px;
     width: 100%;
-    background-color: #25274d;
-    color: white;
     padding: 50px 25px 50px 25px ;
     margin-top: 100px;
     .container{
+        .title{
+            h1{
+                font-weight: bold;
+            }
+        }
         .desc{
             p{
                 font-size: calc(.3vw + .7rem);
@@ -24,16 +34,16 @@ body{
             cursor: pointer;
             height: calc(.58vw + 1.6rem);
             width: calc(4vw + 7rem);
+            background-color: white;
             margin-top: 35px;
-            background-color: #2e9cca;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 10px;
-            border: solid 1px #2e9cca;
+            border: solid 1px white;
             transition: all .3s;
             a{
-                color: #25274d;
+                color: rgb(25, 25, 25);
                 text-decoration: none;
                 font-size: calc(.3vw + .7rem);
                 transition: all .3s;
@@ -42,23 +52,25 @@ body{
         .button-bio:hover{
             background-color: transparent;
             a{
-                color: #2e9cca;
+                color: white;
             }
         }
     }
 }
 #passion{
+    background: linear-gradient(-75deg, white, rgba(100, 100, 100, 1), white);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: shinyTextTwo 10s linear infinite;
     min-height: 500px;
     width: 100%;
-    background-color: #25274d;
-    color: white;
     padding: 50px 25px 50px 25px;
 
     .container{
         .title{
             margin-bottom: 25px;
             h3{
-                color: #2e9cca;
                 font-weight: bold;
             }
         }
@@ -86,10 +98,26 @@ body{
                     align-items: center;
                     justify-content: center;
 
-                    img{
+                    img {
                         height: 100%;
                         filter: drop-shadow(5px 0px 1px black);
+                        -webkit-mask: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 40%, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.8) 60%) 100% 100% / 250% 250%;
+                        mask: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 40%, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.8) 60%) 100% 100% / 250% 250%;
+                        animation: shine 5s ease-in-out infinite;
                     }
+
+                    @keyframes shine {
+                        0% {
+                            -webkit-mask-position: 250% 0; /* Mulai dari kanan */
+                            mask-position: 250% 0;
+                        }
+                        100% {
+                            -webkit-mask-position: -250% 0; /* Bergerak ke kiri */
+                            mask-position: -250% 0;
+                        }
+                    }
+
+
                 }
               }
           }
@@ -106,16 +134,18 @@ body{
     }
 }
 #project{
+    background: linear-gradient(-75deg, white, rgba(100, 100, 100, 1), white);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: shinyTextTwo 10s linear infinite;
     min-height: 500px;
     width: 100%;
-    background-color: #25274d;
-    color: white;
     padding: 50px 25px 50px 25px;
     .container-fluid{
         .title{
             margin-bottom: 75px;
             h3{
-                color: #2e9cca;
                 font-weight: bold;
             }
         }
@@ -127,11 +157,11 @@ body{
             justify-content: space-evenly;
 
             .project-card{
+                background-color: white;
                 max-width: 350px;
                 max-height: fit-content;
                 margin: 25px;
                 padding-bottom: 25px;
-                background-color: white;
                 border-radius: 10px;
                 overflow: hidden;
 
@@ -154,7 +184,7 @@ body{
                     height: 50px;
                     width: 100%;
                     h5{
-                        color: #25274d;
+                        color: rgb(25, 25, 25);
                         font-weight: bold;
                         display: -webkit-box;
                         -webkit-line-clamp: 2;
@@ -166,24 +196,24 @@ body{
                     cursor: pointer;
                     height: 35px;
                     width: 125px;
-                    background-color: #25274d;
                     margin-left: 25px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    border: 1px solid #25274d;
+                    background-color: rgb(25, 25, 25);
+                    border: 1px solid rgb(25, 25, 25);
                     border-radius: 5px;
 
                     a{
-                        text-decoration: none;
                         color: white;
+                        text-decoration: none;
                     }
                 }
                 .button-more:hover{
                     background-color: transparent;
                     transition: all .3s;
                     a{
-                        color: #25274d;
+                        color: rgb(25, 25, 25);
                         transition: all .3s;
                     }
                 }
@@ -191,120 +221,29 @@ body{
         }
     }
 }
-// #blog{
-//     min-height: 500px;
-//     width: 100%;
-//     background-color: #25274d;
-//     color: white;
-//     padding: 50px 25px 50px 25px;
-//     .container{
-//         .title{
-//             margin-bottom: 75px;
-//             h3{
-//                 color: #2e9cca;
-//                 font-weight: bold;
-//             }
-//         }
-//         .content{
-//             width: 100%;
-//             display: flex;
-//             justify-content: space-evenly;
-
-//             .blog-card{
-//                 max-width: 300px;
-//                 max-height: 450px;
-//                 margin: 25px 25px;
-//                 padding-bottom: 25px;
-//                 background-color: white;
-//                 color: black;
-//                 border-radius: 15px;
-//                 overflow: hidden;
-
-//                 .thumbnail{
-//                     img{
-//                         width: 100%;
-//                     }
-//                 }
-//                 .teks{
-//                     .title{
-//                         margin: 15px 0 0 15px;
-//                         h5{
-//                             color: #25274d;
-//                             font-weight: bold;
-//                             font-size: calc(.6vw + .9rem);
-//                             text-align: start;
-//                             display: -webkit-box;
-//                             -webkit-line-clamp: 1;
-//                             -webkit-box-orient: vertical;
-//                             overflow: hidden;
-//                         }
-//                     }
-//                     .date{
-//                         margin: 0 0 0 15px;
-
-//                         p{
-//                             font-size: calc(.1vw + .7rem);
-//                             color: rgba(0, 0, 0, 0.3);
-//                         }
-//                     }
-//                     .desc{
-//                         margin: -10px 15px 25px 15px;
-
-//                         p{
-//                             text-align: justify;
-//                             font-size: calc(.1vw + .7rem);
-//                             display: -webkit-box;
-//                             -webkit-line-clamp: 5;
-//                             -webkit-box-orient: vertical;
-//                             overflow: hidden;
-//                         }
-//                     }
-//                     .button-more{
-//                         cursor: pointer;
-//                         height: 35px;
-//                         width: 150px;
-//                         background-color: #25274d;
-//                         line-height: 35px;
-//                         border-radius: 10px;
-//                         border: solid 1px #25274d;
-//                         transition: .3s;
-
-//                         a{
-//                             color: white;
-//                             text-decoration: none;
-//                         }
-//                     }
-//                     .button-more:hover{
-//                         background-color: transparent;
-//                         line-height: 35px;
-//                         border-radius: 10px;
-
-//                         a{
-//                             color: #25274d;
-//                             text-decoration: none;
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-//     }
-// }
 #feedback{
+    background: linear-gradient(-75deg, white, rgba(100, 100, 100, 1), white);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: shinyTextTwo 10s linear infinite;
     min-height: 500px;
     width: 100%;
-    background-color: #25274d;
-    color: white;
     padding: 50px 25px 50px 25px;
     .container{
         .title{
             h3{
-                color: #2e9cca;
                 font-weight: bold;
             }
         }
         form{
             button{
-                background-color: #2e9cca;
+                border: 1px solid white;
+                background-color: white;
+                color: rgb(25, 25, 25);
+            }
+            button:hover{
+                background-color: rgb(25, 25, 25);
                 color: white;
             }
         }
@@ -313,16 +252,18 @@ body{
 
 // halaman bio
 #biografi{
+    background: linear-gradient(-75deg, white, rgba(100, 100, 100, 1), white);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: shinyTextTwo 10s linear infinite;
     min-height: 300px;
     width: 100%;
-    background-color: #25274d;
-    color: white;
     padding: 50px 25px 50px 25px ;
     margin-top: 100px;
     .container{
         .title{
             h1{
-                color: #2e9cca;
                 font-weight: 900;
                 margin: 0;
             }
@@ -334,7 +275,11 @@ body{
                 img{
                     width: 100%;
                     border-radius: 50%;
-                    border: solid 5px #1a1b3b;
+                    border: solid 5px white;
+                    filter: drop-shadow(5px 0px 1px black);
+                    -webkit-mask: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 40%, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.8) 60%) 100% 100% / 250% 250%;
+                    mask: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 40%, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.8) 60%) 100% 100% / 250% 250%;
+                    animation: shine 10s ease-in-out infinite;
                 }
             }
         }
@@ -343,10 +288,13 @@ body{
 // halaman bio
 // halaman project
 #project-page{
+    background: linear-gradient(-75deg, white, rgba(100, 100, 100, 1), white);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: shinyTextTwo 10s linear infinite;
     min-height: 300px;
     width: 100%;
-    background-color: #25274d;
-    color: white;
     padding: 50px ;
     margin-top: 100px;
 
@@ -354,7 +302,6 @@ body{
         .title{
             margin-bottom: 75px;
             h1{
-                color: #2e9cca;
                 font-weight: 900;
                 margin: 0;
             }
@@ -368,12 +315,12 @@ body{
             justify-content: space-evenly;
 
             .project-card{
+                background-color: white;
                 max-width: 350px;
                 min-width: 250px;
                 max-height: fit-content;
                 margin: 25px;
                 padding-bottom: 25px;
-                background-color: white;
                 border-radius: 10px;
                 overflow: hidden;
 
@@ -395,7 +342,7 @@ body{
                     height: 50px;
                     width: 100%;
                     h5{
-                        color: #25274d;
+                        color: rgb(25, 25, 25);
                         font-weight: bold;
                         display: -webkit-box;
                         -webkit-line-clamp: 2;
@@ -407,24 +354,24 @@ body{
                     cursor: pointer;
                     height: 35px;
                     width: 125px;
-                    background-color: #25274d;
                     margin-left: 25px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    border: 1px solid #25274d;
+                    border: 1px solid rgb(25, 25, 25);
+                    background-color: rgb(25, 25, 25);
                     border-radius: 5px;
 
                     a{
                         text-decoration: none;
-                        color: white;
+                        color:white
                     }
                 }
                 .button-more:hover{
                     background-color: transparent;
                     transition: all .3s;
                     a{
-                        color: #25274d;
+                        color: rgb(25, 25, 25);
                         transition: all .3s;
                     }
                 }
@@ -433,173 +380,21 @@ body{
     }
 }
 // halaman project
-// halaman blog
-// #blog-page{
-//     min-height: 300px;
-//     width: 100%;
-//     background-color: #25274d;
-//     color: white;
-//     padding: 50px 25px 50px 25px ;
-//     margin-top: 100px;
-//     .container{
-//         .title{
-//             margin-bottom: 75px;
-//             h1{
-//                 color: #2e9cca;
-//                 font-weight: bold;
-//             }
-//         }
-//         .content{
-//             width: 100%;
-//             display: flex;
-//             justify-content: space-evenly;
-//             flex-wrap: wrap;
-
-//             .blog-card{
-//                 max-width: 300px;
-//                 max-height: 450px;
-//                 margin: 25px 25px;
-//                 padding-bottom: 25px;
-//                 background-color: white;
-//                 color: black;
-//                 border-radius: 15px;
-//                 overflow: hidden;
-
-//                 .thumbnail{
-//                     img{
-//                         width: 100%;
-//                     }
-//                 }
-//                 .teks{
-//                     .title{
-//                         margin: 15px 0 0 15px;
-//                         h5{
-//                             color: #25274d;
-//                             font-weight: bold;
-//                             font-size: calc(.6vw + .9rem);
-//                             text-align: start;
-//                             display: -webkit-box;
-//                             -webkit-line-clamp: 1;
-//                             -webkit-box-orient: vertical;
-//                             overflow: hidden;
-//                         }
-//                     }
-//                     .date{
-//                         margin: 0 0 0 15px;
-
-//                         p{
-//                             font-size: calc(.1vw + .7rem);
-//                             color: rgba(0, 0, 0, 0.3);
-//                         }
-//                     }
-//                     .desc{
-//                         margin: -10px 15px 25px 15px;
-
-//                         p{
-//                             font-size: calc(.1vw + .7rem);
-//                             text-align: justify;
-//                             display: -webkit-box;
-//                             -webkit-line-clamp: 5;
-//                             -webkit-box-orient: vertical;
-//                             overflow: hidden;
-//                         }
-//                     }
-//                     .button-more{
-//                         cursor: pointer;
-//                         height: 35px;
-//                         width: 150px;
-//                         background-color: #25274d;
-//                         line-height: 35px;
-//                         border-radius: 10px;
-//                         border: solid 1px #25274d;
-//                         transition: .3s;
-
-//                         a{
-//                             color: white;
-//                             text-decoration: none;
-//                         }
-//                     }
-//                     .button-more:hover{
-//                         background-color: transparent;
-//                         line-height: 35px;
-//                         border-radius: 10px;
-
-//                         a{
-//                             color: #25274d;
-//                             text-decoration: none;
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-//     }
-// }
-// halaman blog
-// halaman single blog
-// #blog-post{
-//     min-height: 300px;
-//     width: 100%;
-//     background-color: #25274d;
-//     color: white;
-//     padding: 50px 25px 50px 25px ;
-//     margin-top: 100px;
-
-//     .container{
-//         .thumbnail{
-//             width: 100%;
-//             max-height: fit-content;
-
-//             img{
-//                 width: 100%;
-//             }
-//         }
-//         .teks{
-//             margin-bottom: 150px;
-//             .date{
-//                 margin-top: 25px;
-//                 margin-bottom: -15px;
-//                 p{
-//                     font-size: calc(.4vw + .6rem);
-//                     color: rgba(128, 128, 128, 0.5);
-//                 }
-//             }
-//             .title{
-//                 h1{
-//                     font-size: calc(1.5vw + 1rem);
-//                     color: #2e9cca;
-//                     font-weight: bold;
-//                 }
-//             }
-//             .desc{
-//                 p{
-//                     font-size: calc(.4vw + .6rem);
-//                     text-align: justify;
-//                 }
-//             }
-//         }
-//         a{
-//             color: white;
-//             transition: .3s all;
-//         }
-//         a:hover{
-//             color: #2e9cca;
-//         }
-//     }
-// }
-// halaman single blog
 // halaman sertifikat
 #certificate{
+    background: linear-gradient(-75deg, white, rgba(100, 100, 100, 1), white);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: shinyTextTwo 10s linear infinite;
     min-height: 300px;
     width: 100%;
-    background-color: #25274d;
-    color: white;
     padding: 50px 25px 50px 25px ;
     margin-top: 100px;
     .container{
         .title{
             margin-bottom: 75px;
             h1{
-                color: #2e9cca;
                 font-weight: bold;
             }
         }
@@ -609,14 +404,76 @@ body{
                     margin-right: 5px;
                     margin-bottom: 0;
                 }
-                a{
-                    color: #2e9cca;
-                    text-decoration: none;
-                    transition: all .3s;
-                }
-                a:hover{
-                    color: aqua;
-                }
+                button {
+                    font-size: 1rem;
+                    color: grey;
+                    font-weight: 400;
+                    cursor: pointer;
+                    position: relative;
+                    border: none;
+                    background: none;
+
+                    transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+                    transition-duration: 400ms;
+                    transition-property: color;
+                    display: inline-flex;
+                    align-items: center;
+
+                    span{
+                        a{
+                            color: grey;
+                            text-decoration: none;
+                        }
+                    }
+                  }
+
+                  button:focus,
+                  button:hover {
+                    color: white;
+
+                    span{
+                        a{
+                            color: white;
+                            text-decoration: none;
+                        }
+                    }
+                  }
+
+                  button:focus:after,
+                  button:hover:after {
+                    width: 100%;
+                    right: 0;
+                    left: auto; /* Ensure left is auto to override the initial value */
+                  }
+
+                  button:after {
+                    content: "";
+                    pointer-events: none;
+                    bottom: 0px;
+                    right: auto; /* Start from the right */
+                    left: 0; /* Ensure left is auto to override the initial value */
+                    position: absolute;
+                    width: 0%;
+                    height: 1px;
+                    background-color: #fff;
+                    transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+                    transition-duration: 500ms;
+                    transition-property: width, right;
+                  }
+
+                  .svg-icon {
+                    width: 0.9em;
+                    height: 0.8em;
+                    margin-left: 10px;
+                    fill: grey;
+                    transform: rotate(-45deg);
+                    transition: transform 0.5s ease-out;
+                  }
+
+                  button:hover .svg-icon {
+                    transform: rotate(0deg);
+                    fill: white;
+                  }
             }
         }
     }
@@ -624,10 +481,13 @@ body{
 // halaman sertifikat
 // halaman contact
 #contact{
+    background: linear-gradient(-75deg, white, rgba(100, 100, 100, 1), white);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: shinyTextTwo 10s linear infinite;
     min-height: 300px;
     width: 100%;
-    background-color: #25274d;
-    color: white;
     padding: 50px 25px 50px 25px ;
     margin-top: 100px;
     .container{
@@ -635,7 +495,6 @@ body{
         .title{
             margin-bottom: 75px;
             h1{
-                color: #2e9cca;
                 font-weight: bold;
             }
         }
@@ -647,16 +506,90 @@ body{
                     margin-right: 5px;
                     margin-bottom: 0;
                 }
-                a{
-                    color: #2e9cca;
-                    text-decoration: none;
-                    transition: all .3s;
-                }
-                a:hover{
-                    color: #64d1ff;
-                }
+                button {
+                    font-size: 1rem;
+                    color: grey;
+                    font-weight: 400;
+                    cursor: pointer;
+                    position: relative;
+                    border: none;
+                    background: none;
+
+                    transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+                    transition-duration: 400ms;
+                    transition-property: color;
+                    display: inline-flex;
+                    align-items: center;
+
+                    span{
+                        a{
+                            color: grey;
+                            text-decoration: none;
+                        }
+                    }
+                  }
+
+                  button:focus,
+                  button:hover {
+                    color: white;
+
+                    span{
+                        a{
+                            color: white;
+                            text-decoration: none;
+                        }
+                    }
+                  }
+
+                  button:focus:after,
+                  button:hover:after {
+                    width: 100%;
+                    right: 0;
+                    left: auto; /* Ensure left is auto to override the initial value */
+                  }
+
+                  button:after {
+                    content: "";
+                    pointer-events: none;
+                    bottom: 0px;
+                    right: auto; /* Start from the right */
+                    left: 0; /* Ensure left is auto to override the initial value */
+                    position: absolute;
+                    width: 0%;
+                    height: 1px;
+                    background-color: #fff;
+                    transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+                    transition-duration: 500ms;
+                    transition-property: width, right;
+                  }
+
+                  .svg-icon {
+                    width: 0.9em;
+                    height: 0.8em;
+                    margin-left: 10px;
+                    fill: grey;
+                    transform: rotate(-45deg);
+                    transition: transform 0.5s ease-out;
+                  }
+
+                  button:hover .svg-icon {
+                    transform: rotate(0deg);
+                    fill: white;
+                  }
             }
         }
     }
 }
 // halaman contact
+
+@keyframes shinyTextTwo {
+    0% {
+        background-position: -100vw 0;
+      }
+      50% {
+        background-position: 0px 0;
+      }
+      100% {
+        background-position: 100vw 0;
+      }
+}

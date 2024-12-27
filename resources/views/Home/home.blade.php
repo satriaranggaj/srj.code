@@ -87,46 +87,6 @@
             </div>
         </section>
         <!-- Project -->
-        <!-- Blog -->
-        {{-- <section id="blog">
-            <div class="container">
-                <div class="title">
-                    <h3>
-                        <center>
-                            BLOG
-                        </center>
-                    </h3>
-                </div>
-                <div class="content">
-                @foreach ($posts as $post)
-                    <article>
-                        <div class="blog-card">
-                            <div class="thumbnail">
-                                <img src="frontend/img/project/{{ $post->thumbnail }}" alt="thumbnail-blog">
-                            </div>
-                            <div class="teks">
-                                <div class="title">
-                                    <h5>{{ $post->title }}</h5>
-                                </div>
-                                <div class="date">
-                                    <p>{{ $post->date }}</p>
-                                </div>
-                                <div class="desc">
-                                    <p>{{ $post->excerpt }}</p>
-                                </div>
-                                <center>
-                                    <div class="button-more">
-                                        <a href="{{ route('blog-post', ['slug' => $post->slug]) }}">Read More</a>
-                                    </div>
-                                </center>
-                            </div> 
-                        </div>
-                    </article>
-                @endforeach
-                </div>
-            </div>
-        </section> --}}
-        <!-- Blog -->
         <!-- Feedback -->
         <section id="feedback">
             <div class="container">
@@ -161,7 +121,7 @@
                         <textarea class="form-control" id="message" rows="3" name="pesan"></textarea>
                       </div>
                       <button type="submit" class="btn btn-submit">Send</button>
-        
+
                       <button class="btn btn-loading d-none" type="button" disabled>
                         <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
                         Loading...
@@ -173,4 +133,3 @@
         </section>
         <!-- Feedback -->
 @endsection
-   

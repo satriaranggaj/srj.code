@@ -1,8 +1,11 @@
 footer{
+    background: linear-gradient(-75deg, white, rgba(100, 100, 100, 1), white);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: shinyTextTwo 10s linear infinite;
     min-height: 250px;
     width: 100%;
-    background-color: #25274d;
-    color: white;
     padding: 100px 0 5px 0 ;
     .container{
         display: flex;
@@ -10,9 +13,8 @@ footer{
         align-items: center;
         .title{
             h1{
-                color: #2e9cca;
                 font-weight: 900;
-                margin: 0;  
+                margin: 0;
             }
         }
         .foot-link{
@@ -24,7 +26,7 @@ footer{
                 display: flex;
                 justify-content: space-around;
                 list-style: none;
-    
+
                 li{
                     margin: 15px 15px;
                     a{
