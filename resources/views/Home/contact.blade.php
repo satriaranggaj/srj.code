@@ -34,7 +34,7 @@
                 <p>LinkedIn : </p>
                 <button>
                     <span>
-                        <a href="https://www.linkedin.com/in/satria-r-a5b523139" target="_blank">satriaranggaj</i></a>
+                        <a href="https://www.linkedin.com/in/satriaranggamyid/" target="_blank">SATRIA RANGGA JATI</i></a>
                     </span>
                     <span class="icon">
                       <svg

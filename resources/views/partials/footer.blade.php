@@ -13,9 +13,8 @@
                 <li class ="{{ ($title === "Home") ? 'active' : '' }}"><a class="navbar-link" href="{{ asset(route('home')) }}">Home</a></li>
                 <li class ="{{ ($title === "Bio") ? 'active' : '' }}"><a class="navbar-link" href="{{ asset(route('about')) }}">Bio</a></li>
                 <li class ="{{ ($title === "Projects") ? 'active' : '' }}"><a class="navbar-link" href="{{ asset(route('project')) }}">Project</a></li>
-                {{-- <li class ="{{ ($title === "Blog") ? 'active' : '' }}"><a class="navbar-link" href="{{ asset(route('blog')) }}">Blog</a></li> --}}
                 <li class ="{{ ($title === "Certificates") ? 'active' : '' }}"><a class="navbar-link" href="{{ asset(route('certificate')) }}">Certificates</a></li>
-                <li class ="{{ ($title === "Resume") ? 'active' : '' }}"><a class="navbar-link" href="{{ asset(route('resume')) }}" target="_blank">Resume</a></li>
+                <li><a class="navbar-link" href="https://drive.google.com/file/d/1TIWRqOEkxd1mdV1vQfNSW1S9P5X5djHm/view?usp=sharing" target="_blank">Resume</a></li>
             </ul>
         </div>
         <div class="others">
@@ -30,7 +29,7 @@
                     <a href="https://github.com/satriaranggaj" target="_blank"><i class="fa-brands fa-github"></i></a>
                 </div>
                 <div class="li">
-                    <a href="https://www.linkedin.com/in/satria-r-a5b523139" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
+                    <a href="https://www.linkedin.com/in/satriaranggamyid/" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
                 </div>
             </div>
         </div>

@@ -44,16 +44,6 @@ class HomeController extends Controller
     }
     // projects page
 
-    // public function blog()
-    // {
-    //     // blog page
-    //     return view('Home.posts', [
-    //         "title" => "Blog",
-    //         "posts" => Post::rev(),
-    //     ]);
-    //     // blog page
-    // }
-
     public function certificate()
     {
         return view('Home.certificates',[
@@ -62,22 +52,10 @@ class HomeController extends Controller
         ]);
     }
 
-    public function resume()
-    {
-        return view('Home.resume');
-    }
-
     public function contact()
     {
         return view('Home.contact',[
             "title" => "Contact"
         ]);
     }
-    // public function blogPost(Post $post)
-    // {
-    //     return view('Home.post',[
-    //         "title" => "Blog",
-    //         "post" => $post,
-    //     ]);
-    // }
 }

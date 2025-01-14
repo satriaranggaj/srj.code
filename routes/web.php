@@ -20,10 +20,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', [HomeController::class, 'bio'])->name('about');
 Route::get('/projects', [HomeController::class, 'projects'])->name('project');
 Route::get('/certificates', [HomeController::class, 'certificate'])->name('certificate');
-Route::get('/resume', [HomeController::class, 'resume'])->name('resume');
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
-// Route::get('/blog', [HomeController::class, 'blog'])->name('blog');
-// Route::get('/blog/{slug}', [HomeController::class, 'blogPost'])->name('blog-post');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
