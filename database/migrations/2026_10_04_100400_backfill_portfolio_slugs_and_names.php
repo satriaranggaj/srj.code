@@ -13,7 +13,10 @@ return new class extends Migration
             return;
         }
 
-        $projects = DB::table('projects')->select('id', 'title', 'link')->get();
+        // `slug` MUST be selected: the loop reads it to decide whether a value is
+        // missing. Omitting it raises "Undefined property: stdClass::$slug" and aborts
+        // the migration part-way.
+        $projects = DB::table('projects')->select('id', 'title', 'link', 'slug', 'live_url')->get();
 
         $used = [];
 
@@ -28,9 +31,18 @@ return new class extends Migration
                 );
             }
 
-            // `link` is preserved untouched. `live_url` only ever receives a copy of it,
-            // and only when it actually looks like a URL, so nothing can be invented.
-            if (blank($project->link) === false && str_starts_with(ltrim($project->link), 'http')) {
+            /*
+             * `link` is preserved untouched.
+             *
+             * `live_url` is only ever *filled*, never overwritten: an owner who has
+             * already set an explicit live URL keeps it, and `link` is only copied in
+             * when it actually looks like a URL, so nothing can be invented. Because
+             * `live_url` is in the select for exactly this reason, adding it later
+             * must not silently discard existing data.
+             */
+            $liveUrl = $project->live_url ?? null;
+
+            if (blank($liveUrl) && blank($project->link) === false && str_starts_with(ltrim($project->link), 'http')) {
                 $update['live_url'] = $project->link;
             }
 
