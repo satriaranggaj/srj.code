@@ -42,11 +42,14 @@ Three rules shape the whole implementation:
 - **Contact** — verified channels plus a validated, rate-limited message form stored in the
   application's own database
 - **SEO** — per-page title, meta description, canonical URL, Open Graph, Twitter/X card and
-  JSON-LD (`Person`, `WebSite`, `CreativeWork`)
+  JSON-LD (`Person`, `WebSite`, `CreativeWork`), all derived from `APP_URL`
+- **Dynamic `robots.txt` and sitemap** — the sitemap lists only URLs that actually resolve, and
+  the `Sitemap:` line always follows `APP_URL`
 - **Accessibility** — semantic landmarks, skip link, visible focus ring, `aria-current` on the
   active route, labelled form fields, `prefers-reduced-motion` support
-- **Dark-first theming** with an optional light mode, remembered locally, applied before first
-  paint so the wrong palette never flashes
+- **Dark-only theming** — near-black surfaces with a single restrained accent. The dark palette
+  is the identity; there is no light mode, because the design tokens have no light counterpart
+  and a non-functional toggle is worse than none
 
 ### Dashboard (`/dashboard`, authentication required)
 
@@ -67,26 +70,35 @@ the `public` disk, and the previous file is deleted only when it is one this app
 
 ```
 app/
-  Http/Controllers/
-    HomeController.php              / and /about
-    ProjectController.php           /projects, /projects/{slug}, /sitemap.xml
-    CertificateController.php       /certificates
-    ContactController.php           /contact and POST /contact
-    Admin/
-      DashboardController.php       dashboard overview
-      SkillController.php           technologies CRUD
-      ProjectController.php         projects CRUD
-      CertificateController.php     certificates CRUD
-      ContactMessageController.php  message inbox
-  Http/Requests/
-    StoreContactMessageRequest.php
-    Admin/{Project,Skill,Certificate}Request.php
+  Console/Commands/
+    CreateAdminUser.php             admin:create
+    PruneContactMessages.php        contact:prune
+  Http/
+    Controllers/
+      HomeController.php              / and /about
+      ProjectController.php           /projects, /projects/{slug}, /sitemap.xml
+      CertificateController.php       /certificates
+      ContactController.php           /contact and POST /contact
+      RobotsController.php            /robots.txt (Sitemap URL derived from APP_URL)
+      Admin/
+        DashboardController.php       dashboard overview
+        SkillController.php           technologies CRUD
+        ProjectController.php         projects CRUD
+        CertificateController.php     certificates CRUD
+        ContactMessageController.php  message inbox
+    Middleware/
+      EnsureUserIsAdmin.php          the `admin` middleware
+    Requests/
+      StoreContactMessageRequest.php
+      Admin/{Project,Skill,Certificate}Request.php
   Models/
     Project.php  Skill.php  Certificate.php  ContactMessage.php
     Post.php  Category.php  User.php          (Post/Category retained for compatibility)
+  Providers/
+    AuthServiceProvider.php          defines the `access-admin` gate
   Support/PortfolioText.php         slug + filename helpers shared by models and migrations
 
-config/portfolio.php                identity, contact channels, copy, stack groups
+config/portfolio.php                identity, contact channels, copy, stack groups, retention
 
 resources/views/
   layouts/portfolio.blade.php       public shell (registered as <x-layouts.portfolio>)
@@ -218,27 +230,119 @@ run can touch a real database.
 
 ---
 
-## Deployment Notes
+## Production Environment
 
-```bash
-git pull
-composer install --no-dev --optimize-autoloader
-npm ci && npm run build
-php artisan migrate --force
-php artisan storage:link
-php artisan config:cache && php artisan route:cache && php artisan view:cache
+```dotenv
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://satriarangga.my.id
+SESSION_SECURE_COOKIE=true
+ALLOW_REGISTRATION=false
 ```
 
-- Run migrations on a **backup** first. Every Portfolio V2 migration is additive, but
-  `2026_10_04_100400_backfill_portfolio_slugs_and_names` writes to existing rows (it only fills
-  empty columns) and `2026_10_04_100500_relax_legacy_not_null_columns` alters column constraints.
-- `php artisan migrate --force` is required on production because `APP_ENV=production`.
-- Never run `migrate:fresh` or `db:wipe` against this database.
+> **`APP_URL` MUST be correct before you run `php artisan config:cache`.**
+> The canonical URL, `og:url`, `og:image`, the Twitter image, every sitemap entry and the
+> `Sitemap:` line in `robots.txt` are all derived from `APP_URL` — deliberately, so a spoofed
+> `Host` header or a preview hostname can never produce canonical URLs for another domain.
+> A wrong `APP_URL` therefore publishes wrong metadata to every search engine and social
+> platform, and config caching will freeze it.
+
+Never put real passwords, tokens or API keys in this file, in `.env.example`, or anywhere else
+in the repository.
+
+### Deployment
+
+> **Production migrations must only be run after a database backup and a MySQL rehearsal.**
+> The automated test suite runs on in-memory SQLite, which does **not** prove the migrations
+> work on MySQL. Follow [`docs/MYSQL_MIGRATION_REHEARSAL.md`](docs/MYSQL_MIGRATION_REHEARSAL.md)
+> against a restored copy first.
+
+```bash
+# 1. Back up the production database BEFORE pulling.
+mysqldump --single-transaction -h HOST -u USER -p srj_portfolio > backup.sql
+
+# 2. Deploy the code.
+git pull
+composer install --no-dev --optimize-autoloader
+npm ci
+npm run build
+
+# 3. Migrate (requires --force because APP_ENV=production).
+php artisan migrate --force
+
+# 4. Required for uploaded thumbnails and logos to load from /storage.
+php artisan storage:link
+
+# 5. Cache. config:cache freezes APP_URL, so confirm step "Production Environment" first.
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+Never run `migrate:fresh`, `db:wipe`, or `migrate:rollback` against production.
+
+### Creating an administrator
+
+```bash
+php artisan admin:create
+```
+
+Prompts for name, e-mail and a hidden password, validates them, hashes the password and creates
+an account with administrator access. It never prints the password.
+
+Do **not** open `/register` on a production website to add an administrator. `ALLOW_REGISTRATION`
+is a development/emergency escape hatch only: it makes `/register` reachable, and while it is
+reachable any visitor can create an account (which is always non-admin, but still gets an
+account on your system). If you must use it, set it back to `false` immediately afterwards.
+
+```bash
+# Emergency only
+ALLOW_REGISTRATION=true php artisan serve   # local, never on a public host
+```
+
+### Rollback
+
+Most Portfolio V2 migrations are reversible because they only add columns Portfolio V2 itself
+introduced. One is not:
+
+| Migration | Reversible |
+|-----------|------------|
+| `2026_10_04_100000_add_portfolio_fields_to_projects_table` | Yes |
+| `2026_10_04_100100_add_portfolio_fields_to_skills_table` | Yes |
+| `2026_10_04_100200_add_portfolio_fields_to_certificates_table` | Yes |
+| `2026_10_04_100300_create_contact_messages_table` | Yes (drops the table) |
+| `2026_10_04_100400_backfill_portfolio_slugs_and_names` | No-op by design |
+| `2026_10_04_100500_relax_legacy_not_null_columns` | **No** |
+| `2026_10_04_100600_add_is_admin_to_users_table` | Yes |
+
+`100500` cannot be safely reversed once nullable rows exist. Its `down()` throws a
+`RuntimeException` naming the affected columns instead of coercing `NULL` into `''`, because an
+empty string is not equivalent to `NULL` for a URL or a file path.
+
+**Preferred production rollback: restore the database backup taken immediately before
+migrating, then redeploy the previous application version.** Do not rely on `migrate:rollback`
+for this migration, and note that rolling back `100600` would also remove the `is_admin` flag and
+reopen the "any authenticated account is an administrator" gap.
+
+### Other deployment notes
+
 - The web server document root must be `public/`.
-- `public/robots.txt` disallows `/dashboard`, `/profile`, `/project`, `/skill`, `/certificate`,
-  `/messages` and all auth routes.
-- Update the `Sitemap:` line in `public/robots.txt` if the domain changes.
+- `robots.txt` is served by the application (`GET /robots.txt`) so its `Sitemap:` line always
+  follows `APP_URL`. There must be **no** static `public/robots.txt`: the web server would serve
+  that file directly and the route would never run.
 - Set `SESSION_SECURE_COOKIE=true` once the site is served over HTTPS.
+- Optional contact channels are disabled by default, so an unverified URL is never published.
+
+### Maintenance commands
+
+```bash
+# Delete contact messages older than the configured retention window (default 90 days).
+php artisan contact:prune --dry-run   # report only
+php artisan contact:prune             # actually delete
+
+# Never run automatically; retention is always an explicit operator decision.
+CONTACT_MESSAGE_RETENTION_DAYS=90
+```
 
 ---
 
@@ -274,29 +378,38 @@ tests/                   Feature tests for every public route and the admin CRUD
 | `skills` | Technologies, grouped by category |
 | `certificates` | Certificates and credentials |
 | `contact_messages` | Messages submitted through the public contact form |
-| `users` | Dashboard administrators |
+| `users` | Dashboard administrators (`is_admin`) |
 | `posts`, `categories` | Legacy blog tables, retained untouched |
 
 ---
 
 ## Security Notes
 
-- **Self-registration is closed by default.** Every authenticated account can edit all portfolio
-  content, so `/register` returns 404 unless `ALLOW_REGISTRATION=true`. Existing accounts are
-  unaffected.
-- The contact form is validated server-side, protected by a honeypot field and rate limited per IP.
-  Messages are stored in the application's own database — no third-party service and no exposed
-  webhook endpoint.
+- **Explicit administrator authorization.** `users.is_admin` plus an `admin` middleware and an
+  `access-admin` gate protect the dashboard and every content-management route. Guests are
+  redirected to `/login`; authenticated non-admins receive `403`. Profile routes stay available
+  to any signed-in account because they only affect that account.
+- **Existing accounts keep their access.** The `is_admin` migration marks pre-existing rows as
+  administrators, because before the column existed every authenticated account already had full
+  portfolio access. Accounts created afterwards default to non-admin. See the migration for the
+  rationale.
+- **Self-registration is closed by default.** `/register` returns 404 unless
+  `ALLOW_REGISTRATION=true`, and even then a self-registered account is always non-admin. Use
+  `php artisan admin:create` instead.
+- The contact form is validated server-side, protected by a honeypot field and rate limited per
+  IP. Messages are stored in the application's own database — no third-party service and no
+  exposed webhook endpoint. Visitor IP address and user agent are stored alongside the message for
+  anti-spam purposes and are pruned on a configurable retention window via `contact:prune`.
 - All uploaded files are validated by MIME type, size and dimensions, and stored outside the web
-  root on the `public` disk.
-- Deleted uploads are restricted to paths this application wrote under its own directories, so a
-  shared or default image can never be removed by accident.
+  root on the `public` disk. Replacement is ordered store → persist → delete, so a failed upload
+  can never destroy the existing media. Deleted uploads are restricted to paths this application
+  wrote under `projects/thumbnails/` and `projects/screenshots/`.
 - External links use `target="_blank" rel="noopener noreferrer"`.
-- The dashboard renders flash messages and validation errors through `json_encode` rather than raw
+- The dashboard renders flash messages and validation errors through `@json()` rather than raw
   string interpolation into JavaScript.
 - `.env` is gitignored. No credentials, API keys or tokens are committed.
-- All SQL goes through the query builder or Eloquent; the only raw SQL is driver-aware `ALTER
-  TABLE` in one migration, with no user input.
+- All SQL goes through the query builder or Eloquent; the only raw SQL is driver-aware
+  `ALTER TABLE` in one migration, with no user input.
 
 ### Reporting a vulnerability
 
@@ -332,10 +445,25 @@ Feature coverage:
 | File | Covers |
 |------|--------|
 | `tests/Feature/PublicPagesTest.php` | All five public routes return 200, render the shared chrome and SEO metadata, never emit an iframe, hide disabled channels, and the sitemap lists case studies |
-| `tests/Feature/ProjectCaseStudyTest.php` | Valid slug renders, invalid slug 404s, archived project 404s, empty sections stay hidden, thumbnail is used as the social preview, absent URLs produce no buttons, `link` fallback works |
-| `tests/Feature/ContactMessageTest.php` | Valid submission is stored, validation errors, honeypot rejection, rate limiting, metadata capture |
-| `tests/Feature/Admin/ProjectManagementTest.php` | Auth gating, all index/edit pages, slug generation and uniqueness, validation, thumbnail storage, replace-and-delete, destroy, status switching, and that existing data is never overwritten |
+| `tests/Feature/ProjectCaseStudyTest.php` | Valid slug renders; invalid slug, archived project and content-free project all 404; empty sections stay hidden; thumbnail used as social preview; absent URLs produce no buttons; `link` fallback works |
+| `tests/Feature/ProjectVisibilityTest.php` | `live` / `in_progress` / `archived` / unknown-status visibility across homepage, listing, detail route and sitemap; admin listing still shows archived work |
+| `tests/Feature/ResolvedLiveUrlTest.php` | `live_url` → `link` → null resolution, both real columns remaining independently readable, legacy rows rendering correctly |
+| `tests/Feature/SitemapTest.php` | Valid XML, all static pages present, no fabricated `lastmod` on static pages, archived and content-free projects excluded, and every listed URL actually resolving |
+| `tests/Feature/SeoMetadataTest.php` | Per-page titles, canonical / `og:url` / `og:image` / Twitter tags, valid JSON-LD, `APP_URL`-derived URLs resisting a spoofed `Host` header, robots.txt, heading order |
+| `tests/Feature/AccessibilityTest.php` | Skip link, landmarks, heading order, labelled fields, alt text, lazy/eager image loading, `aria-current`, focus visibility, no nested interactive elements, external link `rel` |
+| `tests/Feature/PublicPerformanceTest.php` | No iframes, no Bootstrap/jQuery/icon fonts, no third-party font requests, exactly one stylesheet and script, bundle size ceilings, legacy assets absent, query budget |
+| `tests/Feature/ContactMessageTest.php` | Valid submission stored, validation errors, honeypot rejection, rate limiting, metadata capture |
+| `tests/Feature/Admin/ProjectManagementTest.php` | Slug generation and uniqueness, validation, thumbnail storage, replace-and-delete, destroy, status switching, existing data never overwritten |
+| `tests/Feature/Admin/ProjectMediaTest.php` | Screenshot upload, preservation without upload, replacement, delete-after-success, validation-failure safety, and that files outside the managed directory are never deleted |
+| `tests/Feature/Admin/AdminAuthorizationTest.php` | Guest redirect, non-admin 403, admin access, CRUD enforcement for non-admins, self-registered accounts never becoming admins |
+| `tests/Feature/AdminCreateCommandTest.php` | `admin:create` success, hashing, dashboard access, duplicate/invalid email, weak password, missing fields |
+| `tests/Feature/PruneContactMessagesCommandTest.php` | Retention window, configurability, dry run, override, rejection of a nonsense window, and that deletion is never automatic |
+| `tests/Feature/MigrationSafetyTest.php` | Schema after migrate, legacy columns never dropped, relaxed columns nullable, legacy values surviving the backfill, idempotency, unique slug generation, `is_admin` backfill, rollback refusal |
 | `tests/Feature/Auth/*` | Breeze auth flows, including that registration is closed by default |
+
+> The suite runs on **in-memory SQLite** (see `phpunit.xml`), so neither CI nor a local run can
+> touch a real database. That does **not** prove MySQL compatibility — see
+> [`docs/MYSQL_MIGRATION_REHEARSAL.md`](docs/MYSQL_MIGRATION_REHEARSAL.md).
 
 ---
 

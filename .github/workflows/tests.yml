@@ -7,6 +7,10 @@ on:
       - 'feat/**'
       - '*.x'
   pull_request:
+  # Manual trigger. This workflow had never produced a recorded run in this
+  # repository, so it must be possible to run it on demand from the Actions tab
+  # rather than waiting for a push to reveal a problem.
+  workflow_dispatch:
 
 permissions:
   contents: read
