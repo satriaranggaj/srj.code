@@ -26,6 +26,9 @@
                     <x-nav-link :href="route('certificate.index')" :active="request()->routeIs('certificate.index', 'certificate.edit', 'certificate.create')">
                         {{ __('Certificate') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('message.index')" :active="request()->routeIs('message.*')">
+                        {{ __('Messages') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -80,6 +83,18 @@
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('skill.index')" :active="request()->routeIs('skill.*')">
+                {{ __('Skill') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('project.index')" :active="request()->routeIs('project.*')">
+                {{ __('Project') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('certificate.index')" :active="request()->routeIs('certificate.*')">
+                {{ __('Certificate') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('message.index')" :active="request()->routeIs('message.*')">
+                {{ __('Messages') }}
             </x-responsive-nav-link>
         </div>
 

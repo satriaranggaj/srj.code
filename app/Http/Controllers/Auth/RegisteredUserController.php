@@ -11,15 +11,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
-use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
     /**
      * Display the registration view.
      */
-    public function create(): View
+    public function create()
     {
+        $this->guardSelfRegistration();
+
         return view('Admin.auth.register');
     }
 
@@ -30,6 +31,8 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $this->guardSelfRegistration();
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
@@ -47,5 +50,19 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         return redirect(RouteServiceProvider::HOME);
+    }
+
+    /**
+     * Self-registration is closed by default.
+     *
+     * Every authenticated account can reach /dashboard and therefore create,
+     * edit and delete all portfolio content, so an open register route would let
+     * any visitor take over the site. The route and the view are kept intact —
+     * set ALLOW_REGISTRATION=true to reopen it when an extra administrator
+     * account is genuinely needed.
+     */
+    private function guardSelfRegistration(): void
+    {
+        abort_unless(config('portfolio.allow_registration', false), 404);
     }
 }

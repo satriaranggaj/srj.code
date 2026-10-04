@@ -2,60 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Post;
-use App\Models\Skill;
-use App\Models\Project;
 use App\Models\Certificate;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use App\Models\Project;
+use App\Models\Skill;
+use Illuminate\View\View;
 
 class HomeController extends Controller
-{   
-    // home page
-    public function index()
+{
+    /**
+     * Only the data the homepage actually renders, and only as much of it as it
+     * needs. The previous version loaded every skill, project and post row into
+     * memory via Project::all()/Post::all().
+     */
+    public function index(): View
     {
-        
-        return view('Home.home', [
-            "title" => "Home",
-            "skills" => Skill::all(),
-            "posts" => Post::lastPost(),
-            "projects" => Project::lastProject(),
-        ]);
-    }
-    // home page
-
-    // about page
-    public function bio()
-    {
-        return view('Home.about', [
-            "title" => "Bio",
-            "image" => "IMG_1666.jpg",
-        ]);
-    }
-    // about page
-
-    // projects page
-    public function projects()
-    {
-        return view('Home.projects',[
-            "title" => "Projects",
-            "projects" => Project::rev(),
-        ]);
-    }
-    // projects page
-
-    public function certificate()
-    {
-        return view('Home.certificates',[
-            "title" => "Certificates",
-            "certificates" => Certificate::all(),
+        return view('portfolio.home', [
+            'featuredProjects' => Project::featured()->published()->ordered()->limit(6)->get(),
+            'recentProjects' => Project::published()->ordered()->limit(3)->get(),
+            'skills' => Skill::ordered()->get(),
+            'certificates' => Certificate::ordered()->limit(3)->get(),
         ]);
     }
 
-    public function contact()
+    public function about(): View
     {
-        return view('Home.contact',[
-            "title" => "Contact"
+        return view('portfolio.about', [
+            'skills' => Skill::ordered()->get(),
         ]);
     }
 }

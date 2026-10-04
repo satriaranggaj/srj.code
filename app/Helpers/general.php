@@ -7,11 +7,11 @@ function greeting()
     $currentHour = date('G'); // Get the current hour (24-hour format)
 
     if ($currentHour >= 0 && $currentHour < 12) {
-        $greeting = "Selamat pagi";
+        $greeting = 'Selamat pagi';
     } elseif ($currentHour >= 12 && $currentHour < 18) {
-        $greeting = "Selamat siang";
+        $greeting = 'Selamat siang';
     } else {
-        $greeting = "Selamat malam";
+        $greeting = 'Selamat malam';
     }
 
     echo $greeting;

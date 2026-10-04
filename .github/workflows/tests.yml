@@ -3,11 +3,10 @@ name: Tests
 on:
   push:
     branches:
-      - master
+      - main
+      - 'feat/**'
       - '*.x'
   pull_request:
-  schedule:
-    - cron: '0 0 * * *'
 
 permissions:
   contents: read
@@ -19,19 +18,19 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php: [8.1, 8.2]
+        php: ['8.1', '8.2', '8.3']
 
     name: PHP ${{ matrix.php }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, gd
           coverage: none
 
       - name: Install Composer dependencies
@@ -43,5 +42,34 @@ jobs:
       - name: Generate app key
         run: php artisan key:generate
 
+      # The suite runs against an in-memory SQLite database (see phpunit.xml), so
+      # CI never needs a MySQL service and can never touch a real database.
+
+      - name: Build frontend assets
+        run: |
+          npm ci
+          npm run build
+
       - name: Execute tests
         run: vendor/bin/phpunit
+
+  style:
+    runs-on: ubuntu-latest
+
+    name: Code style
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Check code style
+        run: vendor/bin/pint --test

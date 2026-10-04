@@ -39,28 +39,55 @@
             @method('delete')
         </form>
 
+        {{-- Admin dependencies. jQuery + SweetAlert2 power the delete-confirmation flow in
+             script/admin.js; Toastr renders flash messages. Everything else in the
+             dashboard is Tailwind + Alpine, so Bootstrap JS, Swiper and the old
+             public main.js are no longer loaded here. --}}
         <script src="{{ asset('/libraries/jquery/jquery-3.7.0.min.js') }}"></script>
         <script src="{{ asset('/libraries/toastr/toastr.min.js') }}"></script>
-
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="{{ asset('/script/admin.js') }}"></script>
 
-        <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
-        <script src="{{ asset('script/bootstrap.bundle.min.js') }}"></script>
-        <script src="{{ asset('script/main.js') }}"></script>
-
         <script>
-            @if ($messages = Session::get('message'))
-                @foreach ($messages as $message)
-                    toastr['{{ $message[0] }}']('{{ $message[1] }}');
-                @endforeach
-            @endif
+            /*
+             * Flash messages and validation errors are rendered through
+             * json_encode + JSON.parse instead of raw string interpolation, so
+             * admin-editable text can never break out of the JS string literal.
+             * Types are restricted to the four Toastr methods we actually use.
+             */
+            (function () {
+                var allowed = ['success', 'error', 'warning', 'info'];
 
-            @if ($errors->any())
-                @foreach ($errors->all() as $error)
-                    toastr["error"]("{{ $error }}");
-                @endforeach
-            @endif
+                function notify(type, text) {
+                    if (allowed.indexOf(type) === -1) {
+                        type = 'info';
+                    }
+
+                    if (typeof window.toastr === 'undefined') {
+                        return;
+                    }
+
+                    window.toastr[type](String(text));
+                }
+
+                var flash = @json(Session::get('message', []));
+
+                if (Array.isArray(flash)) {
+                    flash.forEach(function (entry) {
+                        if (Array.isArray(entry) && entry.length >= 2) {
+                            notify(entry[0], entry[1]);
+                        }
+                    });
+                }
+
+                var errors = @json($errors->all());
+
+                if (Array.isArray(errors)) {
+                    errors.forEach(function (error) {
+                        notify('error', error);
+                    });
+                }
+            })();
         </script>
         @stack('scripts')
     </body>
