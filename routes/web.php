@@ -6,6 +6,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\RobotsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,6 +29,19 @@ Route::get('/sitemap.xml', [ProjectController::class, 'sitemap'])->name('sitemap
 
 /*
 |--------------------------------------------------------------------------
+| robots.txt
+|--------------------------------------------------------------------------
+|
+| Served from the application so the Sitemap URL follows APP_URL automatically.
+| This REQUIRES that no static public/robots.txt exists: the web server serves
+| that file directly and would never reach this route.
+|
+*/
+
+Route::get('/robots.txt', RobotsController::class)->name('robots');
+
+/*
+|--------------------------------------------------------------------------
 | Admin login
 |--------------------------------------------------------------------------
 |
@@ -45,15 +59,14 @@ Route::get('/sitemap.xml', [ProjectController::class, 'sitemap'])->name('sitemap
 | bookmark breaks. The controllers are now split per resource instead of living
 | inside one DashboardController.
 |
+| `auth` + `admin` means: guests are sent to the login screen, and any
+| authenticated account without is_admin receives 403. Profile routes stay on
+| plain `auth` because they only ever affect the signed-in user's own account.
+|
 */
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [Admin\DashboardController::class, 'index'])->name('dashboard');
-
-    // Profile
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Skill
     Route::get('/skill', [Admin\SkillController::class, 'index'])->name('skill.index');
@@ -83,6 +96,22 @@ Route::middleware('auth')->group(function () {
     Route::get('/messages', [Admin\ContactMessageController::class, 'index'])->name('message.index');
     Route::patch('/messages/{contactMessage}/read', [Admin\ContactMessageController::class, 'toggleRead'])->name('message.read');
     Route::delete('/messages/{contactMessage}', [Admin\ContactMessageController::class, 'destroy'])->name('message.destroy');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Profile
+|--------------------------------------------------------------------------
+|
+| Available to any authenticated account. These routes only ever read or change
+| the signed-in user's own name, e-mail and password.
+|
+*/
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 require __DIR__.'/auth.php';

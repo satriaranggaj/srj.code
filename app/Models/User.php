@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_admin',
     ];
 
     /**
@@ -41,5 +42,17 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'is_admin' => 'boolean',
     ];
+
+    /**
+     * Whether this account may manage portfolio content.
+     *
+     * Used by the `admin` middleware and the `access-admin` gate. Kept as a method as
+     * well as a cast so the intent is readable at every call site.
+     */
+    public function isAdmin(): bool
+    {
+        return (bool) $this->is_admin;
+    }
 }

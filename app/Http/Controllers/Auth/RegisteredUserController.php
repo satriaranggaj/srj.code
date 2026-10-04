@@ -43,6 +43,9 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            // Self-registration can never grant portfolio administration, even if the
+            // route is temporarily reopened.
+            'is_admin' => false,
         ]);
 
         event(new Registered($user));
