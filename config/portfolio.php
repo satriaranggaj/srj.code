@@ -277,4 +277,23 @@ return [
         'max_message_length' => 4000,
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Contact message retention
+    |--------------------------------------------------------------------------
+    |
+    | The contact form stores the visitor's IP address and user agent alongside the
+    | message, because both are useful for spotting abuse. That makes the stored data
+    | personal, so a retention period is defined here and applied by an explicit
+    | command:
+    |
+    |     php artisan contact:prune
+    |
+    | Nothing is ever deleted automatically. Run the command on a schedule if the
+    | volume warrants it.
+    |
+    */
+
+    'contact_retention_days' => (int) env('CONTACT_MESSAGE_RETENTION_DAYS', 90),
+
 ];

@@ -165,57 +165,7 @@
                 description="A badge means the technology was used in real work. There are no invented proficiency scores."
             />
 
-            @php
-                $dbSkills = $skills->filter(fn ($skill) => filled($skill->category))->groupBy('category');
-                $hasDbSkills = $dbSkills->isNotEmpty();
-            @endphp
-
-            <div class="mt-12 space-y-10">
-                @foreach (config('portfolio.stack_groups') as $group)
-                    <div data-reveal>
-                        <h3 class="font-mono text-xs uppercase tracking-[0.16em] text-bone-500">
-                            {{ $group['label'] }}
-                        </h3>
-
-                        <ul class="mt-4 flex flex-wrap gap-2">
-                            @foreach ($group['items'] as $item)
-                                <li>
-                                    <x-portfolio.skill-badge :name="$item" />
-                                </li>
-                            @endforeach
-
-                            {{-- Technology recorded in the dashboard, grouped by its own category. --}}
-                            @if ($hasDbSkills && ($dbSkills[$group['label']] ?? null))
-                                @foreach ($dbSkills[$group['label']] as $skill)
-                                    <li>
-                                        <x-portfolio.skill-badge :name="$skill->display_name" :url="$skill->url" />
-                                    </li>
-                                @endforeach
-                            @endif
-                        </ul>
-                    </div>
-                @endforeach
-
-                @if ($hasDbSkills)
-                    @foreach ($dbSkills as $category => $categorySkills)
-                        @if (! in_array($category, collect(config('portfolio.stack_groups'))->pluck('label')->all(), true))
-                            <div data-reveal>
-                                <h3 class="font-mono text-xs uppercase tracking-[0.16em] text-bone-500">
-                                    {{ $category }}
-                                </h3>
-
-                                <ul class="mt-4 flex flex-wrap gap-2">
-                                    @foreach ($categorySkills as $skill)
-                                        <li>
-                                            <x-portfolio.skill-badge :name="$skill->display_name" :url="$skill->url" />
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-                    @endforeach
-                @endif
-            </div>
+            <x-portfolio.tech-stack :skills="$skills" class="mt-12" />
         </div>
     </section>
 

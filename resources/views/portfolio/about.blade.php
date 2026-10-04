@@ -154,50 +154,7 @@
                 description="Grouped by role. No invented proficiency scores — a badge means it shipped."
             />
 
-            @php
-                $dbSkills = $skills->filter(fn ($skill) => filled($skill->category))->groupBy('category');
-                $configuredLabels = collect(config('portfolio.stack_groups'))->pluck('label');
-            @endphp
-
-            <div class="mt-12 space-y-10">
-                @foreach (config('portfolio.stack_groups') as $group)
-                    <div data-reveal>
-                        <h3 class="font-mono text-xs uppercase tracking-[0.16em] text-bone-500">
-                            {{ $group['label'] }}
-                        </h3>
-
-                        <ul class="mt-4 flex flex-wrap gap-2">
-                            @foreach ($group['items'] as $item)
-                                <li><x-portfolio.skill-badge :name="$item" /></li>
-                            @endforeach
-
-                            @foreach ($dbSkills[$group['label']] ?? [] as $skill)
-                                <li>
-                                    <x-portfolio.skill-badge :name="$skill->display_name" :url="$skill->url" />
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endforeach
-
-                @foreach ($dbSkills as $category => $categorySkills)
-                    @unless ($configuredLabels->contains($category))
-                        <div data-reveal>
-                            <h3 class="font-mono text-xs uppercase tracking-[0.16em] text-bone-500">
-                                {{ $category }}
-                            </h3>
-
-                            <ul class="mt-4 flex flex-wrap gap-2">
-                                @foreach ($categorySkills as $skill)
-                                    <li>
-                                        <x-portfolio.skill-badge :name="$skill->display_name" :url="$skill->url" />
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endunless
-                @endforeach
-            </div>
+            <x-portfolio.tech-stack :skills="$skills" class="mt-12" />
         </div>
     </section>
 

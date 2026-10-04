@@ -40,11 +40,12 @@
 
         <h3 class="mt-4 text-base font-semibold leading-snug">
             @if ($credentialUrl)
+                {{-- Focus ring intentionally kept visible on the primary link. --}}
                 <a
                     href="{{ $credentialUrl }}"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="after:absolute after:inset-0 focus-visible:outline-none"
+                    class="after:absolute after:inset-0"
                 >
                     {{ $certificate->title }}
                 </a>
