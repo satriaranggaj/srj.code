@@ -15,6 +15,15 @@ class SitemapTest extends TestCase
     use RefreshDatabase;
 
     /**
+     * The sitemap is built from APP_URL, not from the request, so expectations must
+     * be derived the same way rather than from route().
+     */
+    private function expected(string $path): string
+    {
+        return rtrim((string) config('app.url'), '/').$path;
+    }
+
+    /**
      * @return array<int, string>
      */
     private function locations(): array
@@ -47,8 +56,8 @@ class SitemapTest extends TestCase
     {
         $locations = $this->locations();
 
-        foreach (['home', 'project', 'about', 'certificate', 'contact'] as $name) {
-            $this->assertContains(route($name), $locations, "Missing static page: {$name}");
+        foreach (['/', '/projects', '/about', '/certificates', '/contact'] as $path) {
+            $this->assertContains($this->expected($path), $locations, "Missing static page: {$path}");
         }
     }
 
@@ -58,19 +67,19 @@ class SitemapTest extends TestCase
 
         // A per-request timestamp would falsely report every page as modified on
         // every crawl. Static page URLs must carry no <lastmod> at all.
-        $homeEntry = $this->entryFor($xml, route('home'));
+        $homeEntry = $this->entryFor($xml, $this->expected('/'));
 
         $this->assertStringNotContainsString('<lastmod>', $homeEntry);
     }
 
     public function test_a_project_with_a_case_study_is_listed(): void
     {
-        $project = Project::factory()->create([
+        Project::factory()->create([
             'slug' => 'lensku',
             'description' => 'A case study with real content.',
         ]);
 
-        $this->assertContains(route('project.show', $project), $this->locations());
+        $this->assertContains($this->expected('/projects/lensku'), $this->locations());
     }
 
     public function test_a_project_entry_carries_its_real_lastmod(): void
@@ -81,25 +90,49 @@ class SitemapTest extends TestCase
             'updated_at' => '2026-01-15 10:00:00',
         ]);
 
-        $entry = $this->entryFor($this->get('/sitemap.xml')->getContent(), route('project.show', $project));
+        $entry = $this->entryFor($this->get('/sitemap.xml')->getContent(), $this->expected('/projects/lensku'));
 
         $this->assertStringContainsString('<lastmod>', $entry);
         $this->assertStringContainsString('2026-01-15', $entry);
     }
 
+    public function test_every_location_is_built_from_app_url_not_the_request_host(): void
+    {
+        config(['app.url' => 'https://satriarangga.my.id']);
+
+        $project = Project::factory()->create([
+            'slug' => 'lensku',
+            'description' => 'A case study with real content.',
+        ]);
+
+        // A preview/staging hostname must not leak into the sitemap, because it would
+        // contradict the APP_URL-derived canonical tags and the robots.txt Sitemap line.
+        $body = $this->get('/sitemap.xml', ['HTTP_HOST' => 'staging.example.com'])
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringNotContainsString('staging.example.com', $body);
+
+        foreach ($this->locations() as $location) {
+            $this->assertStringStartsWith('https://satriarangga.my.id/', $location);
+        }
+
+        $this->assertContains('https://satriarangga.my.id/projects/lensku', $this->locations());
+    }
+
     public function test_an_archived_project_is_not_listed(): void
     {
-        $project = Project::factory()->archived()->create([
+        Project::factory()->archived()->create([
             'slug' => 'withdrawn',
             'description' => 'Withdrawn but has content.',
         ]);
 
-        $this->assertNotContains(route('project.show', $project), $this->locations());
+        $this->assertNotContains($this->expected('/projects/withdrawn'), $this->locations());
     }
 
     public function test_a_project_without_a_case_study_is_not_listed(): void
     {
-        $project = Project::factory()->create([
+        Project::factory()->create([
             'slug' => 'bare-card',
             'description' => null,
             'problem' => null,
@@ -110,7 +143,7 @@ class SitemapTest extends TestCase
             'screenshots' => null,
         ]);
 
-        $this->assertNotContains(route('project.show', $project), $this->locations());
+        $this->assertNotContains($this->expected('/projects/bare-card'), $this->locations());
     }
 
     public function test_every_listed_url_actually_resolves(): void

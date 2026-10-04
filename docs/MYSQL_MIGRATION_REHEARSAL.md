@@ -23,6 +23,28 @@ rows, so it is the migration most likely to surface surprises.
 
 ---
 
+## Already rehearsed: local result
+
+This procedure was executed locally against a real **MariaDB 10.4.32** server before the hardening
+pass was finalised. Outcome:
+
+- All 7 Portfolio V2 migrations applied cleanly against a populated, pre-Portfolio-V2 schema.
+- **100 verification checks, 0 failures** (row counts, legacy value preservation, slug
+  uniqueness, `live_url` rules, `information_schema` nullability, `is_admin` backfill).
+- `100500->down()` correctly **refused** to roll back while `NULL`s existed, and the `NULL` was
+  left intact.
+- The application booted against that database: all public routes `200`, `/register` `404`,
+  canonical and `og:image` derived from `APP_URL`, sitemap containing only the 5 static pages,
+  and all case-study URLs `404` for a content-free dataset.
+- The rehearsal database was dropped afterwards and all pre-existing databases were confirmed
+  untouched.
+
+What that proves: the migrations work on a real MySQL-family server with awkward legacy data.
+What it does **not** prove: that they behave identically on a dump of your actual production
+database. Repeat this procedure against that dump before deploying.
+
+---
+
 ## Why a rehearsal is required
 
 The rehearsal answers four questions SQLite cannot:

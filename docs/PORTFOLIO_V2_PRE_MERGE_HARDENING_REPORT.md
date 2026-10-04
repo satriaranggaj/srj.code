@@ -279,14 +279,61 @@ rather than pretending a `NULL` → `''` rewrite is lossless.
 previous release.** Note that rolling back `100600` would also remove `is_admin` and reopen the
 "any authenticated account is an administrator" gap.
 
-### MySQL rehearsal
+### MySQL rehearsal — EXECUTED LOCALLY
 
-**Required before deploying.** Procedure: [`docs/MYSQL_MIGRATION_REHEARSAL.md`](docs/MYSQL_MIGRATION_REHEARSAL.md).
-It covers backup verification, a disposable database, a `.env.rehearsal` that points **only** at
-the rehearsal copy, migration execution, and explicit SQL assertions for row counts, legacy
-`link`/`image` survival, slug uniqueness and `is_admin` coverage.
+The rehearsal was run against a **real MariaDB 10.4.32** server (the primary production target;
+Laravel reports the driver as `mysql`, which is the code path that matters).
 
-Nothing in this pass touched production. No MySQL server was contacted.
+Procedure: [`docs/MYSQL_MIGRATION_REHEARSAL.md`](docs/MYSQL_MIGRATION_REHEARSAL.md).
+
+**What was built:** a disposable database `srj_portfolio_rehearsal` containing the *exact*
+pre-Portfolio-V2 schema, with the nine historical migrations marked as already run, loaded with
+deliberately awkward legacy data — 12 projects including three identical titles, a blank title, a
+title with symbols and accents, a very long title, and a `link` that is **not a URL**; plus
+certificates, six image-only skill rows, one administrator, and a legacy post.
+
+**Result: all 7 migrations applied cleanly, 100 verification checks, 0 failures.**
+
+| Area | Outcome |
+|------|---------|
+| Row counts | Identical before and after (12 / 2 / 6 / 1 / 1) |
+| Legacy `title` and `link` | Byte-for-byte identical on every row |
+| Legacy `image` | Preserved on every skill row |
+| Duplicate titles | `duplicate-title`, `duplicate-title-2`, `duplicate-title-3` |
+| Blank title | Slug fell back to `project` without error |
+| Symbol title | `PHP/Laravel 10 & Vue!` → `phplaravel-10-vue` |
+| Non-URL `link` | **Not** copied into `live_url` (confirms the Bug B fix on real MySQL) |
+| `live_url` copies | Every copied value matched its source `link` exactly |
+| Nullable columns | `projects.link`, `certificates.link`, `skills.image` all `IS_NULLABLE = YES` via `information_schema` |
+| `projects.slug` unique index | Created on a populated table without error |
+| Legacy columns | All still present; nothing dropped |
+| `is_admin` backfill | `1/1` existing user is an administrator — nobody locked out |
+| Skill name derivation | `laravel.png`→`Laravel`, `php.png`→`PHP`, `vue-logo.png`→`Vue Logo`. Derived, never invented |
+
+**Rollback refusal verified on MariaDB.** With a `NULL` link present, `100500->down()` threw:
+
+> `Refusing to roll back 2026_10_04_100500_relax_legacy_not_null_columns: NULL values now exist
+> in projects.link (1 NULL row(s)). Converting them to empty strings would silently alter data.
+> Restore the pre-migration database backup and redeploy the previous release instead.`
+
+and the `NULL` was confirmed still `NULL` afterwards — nothing was coerced.
+
+**Application smoke test against MariaDB.** All public routes returned `200`, `/register`
+returned `404`, and canonical/`og:image` rendered from `APP_URL`. With a dataset of 12
+content-free projects, the sitemap correctly contained **only** the 5 static pages with **no**
+`<lastmod>`, and all four probed case-study URLs returned `404` — precisely the Phase 3/4 rules.
+
+**One inconsistency found and fixed during this rehearsal:** sitemap `<loc>` was built from
+`route()` (the request host) while canonical, `og:image` and `robots.txt` used `APP_URL`. On a
+staging hostname the sitemap would have contradicted them. Sitemap locations are now built from
+`APP_URL`, with a regression test asserting a spoofed `Host` never appears.
+
+**Cleanup verified:** the rehearsal database was dropped and all 13 pre-existing databases —
+including `aplikasiwpu` and `laravel` — were confirmed still present and untouched. No fixture
+scripts remain in the repository.
+
+**Still required before deploying:** the same rehearsal against a restored copy of the *actual
+production* database, because the fixture is representative rather than real.
 
 ---
 
@@ -413,12 +460,12 @@ run `Tests` manually via `workflow_dispatch`. Do not treat CI as green until a r
 
 | Risk | Impact | Action required |
 |------|--------|-----------------|
-| **MySQL never rehearsed** | `100500` uses different SQL on MySQL than the SQLite path the tests cover. An untested `ALTER TABLE` on production | Run [`docs/MYSQL_MIGRATION_REHEARSAL.md`](docs/MYSQL_MIGRATION_REHEARSAL.md) against a restored copy. **Blocking.** |
+| ~~MySQL never rehearsed~~ **RESOLVED LOCALLY** | Closed for MariaDB 10.4.32 with a hostile legacy fixture: 100 checks, 0 failures, plus a live application smoke test. See §4 | Repeat against a restored copy of the *real* production database before deploying |
+| Production data never rehearsed | The local fixture is representative, not real. Unusual real values (very long titles, odd encodings) could behave differently | Follow the rehearsal doc step 6 assertions against a real dump. **Blocking.** |
 | **GitHub Actions has 0 runs** | No automated signal on any push | Enable Actions, trigger `Tests` manually, confirm it passes |
 | **`main` does not contain this hardening** | Production is missing the two migration bug fixes and the media-safety fix | Fast-forward `main` to `feat/portfolio-v2` when satisfied |
-| **`is_admin` backfill** | Correct by reasoning; unverified against real data | Rehearsal step 6 asserts `SUM(is_admin) = COUNT(*)` |
-| **`APP_URL` not verified in production** | Wrong canonical/OG/sitemap URLs on every page | Confirm `APP_URL=https://satriarangga.my.id` **before** `config:cache` |
-| **OG image dimensions** | `public/img/og-default.png` is 2000×2000; the social convention is 1200×630. Some platforms letterbox or crop | Replace with a designed 1200×630 asset when convenient. **Not fabricated here** |
+| **`APP_URL` not verified in production** | Wrong canonical/OG/sitemap/robots URLs on every page | Confirm `APP_URL=https://satriarangga.my.id` **before** `config:cache` |
+| **OG image dimensions** | `public/img/og-default.png` is 2000×2000; the social convention is 1200×630. Some platforms letterbox or crop | Replace with a designed 1200×630 asset when convenient. **Not fabricated here** — the brief directs documenting rather than inventing visual content |
 | **No manual visual testing** | Automated tests check structure, not appearance | Manually review all six public pages, mobile nav, and the admin forms |
 | **No screen-reader pass** | Automated assertions cannot prove usability | Test with a real screen reader and keyboard-only navigation |
 | **`storage:link`** | Thumbnails 404 without it | Confirm it has been run on the production host |

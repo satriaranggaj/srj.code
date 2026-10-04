@@ -46,11 +46,16 @@ class ProjectController extends Controller
      * Static pages carry no <lastmod> because their content is code, not data, and
      * inventing a per-request timestamp would tell crawlers every page changed on
      * every crawl. Project URLs use the row's real updated_at.
+     *
+     * Every <loc> is built from APP_URL rather than from the incoming request, so a
+     * staging or preview hostname cannot advertise URLs that contradict the
+     * APP_URL-derived canonical tags and the robots.txt sitemap line.
      */
     public function sitemap(): Response
     {
         return response()
             ->view('portfolio.sitemap', [
+                'baseUrl' => rtrim((string) config('app.url'), '/'),
                 'projects' => Project::publiclyVisible()
                     ->withPublicCaseStudy()
                     ->ordered()
