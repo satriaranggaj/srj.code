@@ -55,16 +55,22 @@ class CertificateController extends Controller
         $certificate->sort_order = (int) ($request->input('sort_order') ?? 0);
 
         if ($request->boolean('remove_image')) {
-            $this->deleteManagedImage($previousImage);
             $certificate->image = null;
         }
 
         if ($request->hasFile('image')) {
             $certificate->image = $request->file('image')->store(self::DIRECTORY, 'public');
-            $this->deleteManagedImage($previousImage);
         }
 
+        /*
+         * Persist first, delete afterwards, so a failed write can never leave the row
+         * pointing at an image that has already been unlinked from the public disk.
+         */
         $certificate->save();
+
+        if ($previousImage !== null && $previousImage !== $certificate->image) {
+            $this->deleteManagedImage($previousImage);
+        }
 
         return $this->backToIndex('Data updated successfully.');
     }

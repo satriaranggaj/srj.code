@@ -58,16 +58,23 @@ class SkillController extends Controller
         $skill->sort_order = (int) ($request->input('sort_order') ?? 0);
 
         if ($request->boolean('remove_image')) {
-            $this->deleteManagedImage($previousImage);
             $skill->image = null;
         }
 
         if ($request->hasFile('image')) {
             $skill->image = $request->file('image')->store(self::DIRECTORY, 'public');
-            $this->deleteManagedImage($previousImage);
         }
 
+        /*
+         * Persist first, delete afterwards. Removing the previous file before the save
+         * would leave the row pointing at a file that no longer exists if the write
+         * failed, so the old image is only unlinked once the new state is committed.
+         */
         $skill->save();
+
+        if ($previousImage !== null && $previousImage !== $skill->image) {
+            $this->deleteManagedImage($previousImage);
+        }
 
         return $this->backToIndex('Data updated successfully.');
     }

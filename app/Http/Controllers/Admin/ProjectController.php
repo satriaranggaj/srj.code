@@ -69,12 +69,19 @@ class ProjectController extends Controller
 
         /*
          * The slug and the legacy `link` column are only touched when the form
-         * actually submits them. Regenerating a slug on every save would silently
+         * actually changes them. Regenerating a slug on every save would silently
          * break published URLs, and clearing `link` would discard data the public
          * site still falls back to.
+         *
+         * A submitted-but-blank slug is treated as "leave it alone", not "generate a
+         * new one": the form always posts the field, so keying off the field merely
+         * being present would re-derive the slug from the new title and change the
+         * public URL of a project the owner never renamed.
          */
-        if ($request->has('slug') || blank($project->slug)) {
-            $project->slug = Project::uniqueSlug($request->input('slug'), $project->title, $project->getKey());
+        $submittedSlug = $request->input('slug');
+
+        if (filled($submittedSlug) || blank($project->slug)) {
+            $project->slug = Project::uniqueSlug($submittedSlug, $project->title, $project->getKey());
         }
 
         if ($request->has('link')) {
@@ -156,7 +163,7 @@ class ProjectController extends Controller
      */
     private function payload(ProjectRequest $request): array
     {
-        return $request->safe()->only([
+        $validated = $request->safe()->only([
             'title',
             'short_description',
             'description',
@@ -174,12 +181,25 @@ class ProjectController extends Controller
             'outcome',
             'role',
             'year',
-        ]) + [
+        ]);
+
+        /*
+         * Explicitly assigned rather than combined with `+`: array union keeps the left
+         * operand's value for a key present on both sides, which meant these fallbacks
+         * were silently unreachable whenever the field had been submitted - so
+         * cleanList() never actually cleaned anything.
+         */
+        $payload = [
             'featured' => $request->boolean('featured'),
             'sort_order' => (int) ($request->input('sort_order') ?? 0),
             'tech_stack' => $this->cleanList($request->input('tech_stack', [])),
             'highlights' => $this->cleanList($request->input('highlights', [])),
         ];
+
+        // Drop the normalised values so the cleaned versions above are authoritative.
+        unset($validated['featured'], $validated['sort_order'], $validated['tech_stack'], $validated['highlights']);
+
+        return $validated + $payload;
     }
 
     /**

@@ -190,11 +190,17 @@
                     {{--
                         The visible input is free text for usability; a small inline
                         script converts it into the tech_stack[] array the controller
-                        validates. Without JavaScript the arrays are simply absent and
-                        validation treats them as empty rather than failing.
+                        validates. It carries a real `name` so a validation failure can
+                        restore what was typed - without one the value is never submitted
+                        and old() could never have anything to return.
+
+                        This field is deliberately NOT part of the validated payload: the
+                        controller builds tech_stack[] from it, and payload() only reads
+                        keys that passed validation.
                     --}}
                     <x-admin.input
                         id="tech_stack_input"
+                        name="tech_stack_csv"
                         type="text"
                         data-tech-stack-input
                         :value="old('tech_stack_csv', isset($data) ? implode(', ', $data->tech_stack) : '')"
@@ -402,9 +408,12 @@
         <script>
             /*
              * Converts the friendly comma-separated / one-per-line inputs into the
-             * array inputs the controller validates. No dependency. If this script
-             * never runs the arrays are simply absent, which validation treats as
-             * empty rather than as an error.
+             * array inputs the controller validates. No dependency.
+             *
+             * The generated inputs are marked and cleared before each run, so a
+             * double-clicked submit button cannot append the same values twice and
+             * trip the `max` rules. If this script never runs the arrays are simply
+             * absent, which validation treats as empty rather than as an error.
              */
             (function () {
                 function split(text, separator) {
@@ -414,15 +423,23 @@
                         .filter(function (value) { return value.length > 0; });
                 }
 
-                function append(source, name, values) {
-                    if (!source) return;
+                function sync(source, name, values) {
+                    if (!source || !source.form) return;
+
+                    var form = source.form;
+
+                    // Remove anything a previous (possibly duplicated) submit added.
+                    form.querySelectorAll('input[data-generated-for="' + name + '"]').forEach(function (stale) {
+                        stale.parentNode.removeChild(stale);
+                    });
 
                     values.forEach(function (value) {
                         var field = document.createElement('input');
                         field.type = 'hidden';
                         field.name = name + '[]';
                         field.value = value;
-                        source.form.appendChild(field);
+                        field.setAttribute('data-generated-for', name);
+                        form.appendChild(field);
                     });
                 }
 
@@ -430,17 +447,11 @@
                 if (!form) return;
 
                 form.addEventListener('submit', function () {
-                    append(
-                        document.querySelector('[data-tech-stack-input]'),
-                        'tech_stack',
-                        split((document.querySelector('[data-tech-stack-input]') || {}).value, ',')
-                    );
+                    var techStack = document.querySelector('[data-tech-stack-input]');
+                    var highlights = document.querySelector('[data-highlights-input]');
 
-                    append(
-                        document.querySelector('[data-highlights-input]'),
-                        'highlights',
-                        split((document.querySelector('[data-highlights-input]') || {}).value, '\n')
-                    );
+                    sync(techStack, 'tech_stack', split(techStack ? techStack.value : '', ','));
+                    sync(highlights, 'highlights', split(highlights ? highlights.value : '', /\r?\n/));
                 });
             })();
         </script>

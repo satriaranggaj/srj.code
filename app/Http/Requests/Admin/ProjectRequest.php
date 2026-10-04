@@ -26,7 +26,10 @@ class ProjectRequest extends FormRequest
             'short_description' => ['nullable', 'string', 'max:300'],
             'description' => ['nullable', 'string', 'max:20000'],
             'thumbnail' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,avif', 'max:2048', 'dimensions:min_width=320,min_height=180,max_width=4000,max_height=4000'],
-            'project_type' => ['nullable', 'string', 'max:80', Rule::in(array_keys(config('portfolio.project_types', [])))],
+            // portfolio.project_types is a flat list of the *values* the form submits, so
+            // Rule::in() must receive those values. array_keys() here would validate against
+            // 0,1,2,3,4 and reject every real project type.
+            'project_type' => ['nullable', 'string', 'max:80', Rule::in(config('portfolio.project_types', []))],
             'tech_stack' => ['nullable', 'array', 'max:30'],
             'tech_stack.*' => ['string', 'max:60'],
             'live_url' => ['nullable', 'url:http,https', 'max:255'],

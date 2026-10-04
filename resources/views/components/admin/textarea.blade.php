@@ -8,4 +8,4 @@
 <textarea
     rows="{{ $rows }}"
     {!! $attributes->merge(['class' => $classes]) !!}
-></textarea>
+>{{ $slot }}</textarea>
