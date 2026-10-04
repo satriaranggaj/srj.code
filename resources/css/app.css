@@ -13,6 +13,11 @@
 */
 
 @layer base {
+    /*
+     * Portfolio V2 is intentionally dark-only. Declaring the colour scheme keeps
+     * native form controls, scrollbars, caret and select popovers dark instead of
+     * the browser rendering light chrome inside a dark page.
+     */
     :root {
         color-scheme: dark;
     }

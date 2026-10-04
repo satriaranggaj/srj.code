@@ -77,16 +77,6 @@
                         </a>
                     @endif
 
-                    <button
-                        type="button"
-                        x-on:click="$store.theme.toggle()"
-                        class="rounded-md p-2 text-bone-400 transition-colors duration-200 hover:bg-ink-800 hover:text-bone-50"
-                    >
-                        <x-portfolio.icon name="moon" class="h-4 w-4 dark:hidden" />
-                        <x-portfolio.icon name="sun" class="hidden h-4 w-4 dark:block" />
-                        <span class="sr-only">Toggle colour theme</span>
-                    </button>
-
                     <x-portfolio.button
                         :href="route('contact')"
                         size="sm"
@@ -110,16 +100,6 @@
                         <span class="sr-only">{{ $github['label'] }} ({{ $github['handle'] }})</span>
                     </a>
                 @endif
-
-                <button
-                    type="button"
-                    x-on:click="$store.theme.toggle()"
-                    class="rounded-md p-2 text-bone-400 transition-colors duration-200 hover:text-bone-50"
-                >
-                    <x-portfolio.icon name="moon" class="h-4 w-4 dark:hidden" />
-                    <x-portfolio.icon name="sun" class="hidden h-4 w-4 dark:block" />
-                    <span class="sr-only">Toggle colour theme</span>
-                </button>
 
                 <button
                     type="button"

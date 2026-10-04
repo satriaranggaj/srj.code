@@ -9,7 +9,14 @@ export default {
         './resources/views/**/*.blade.php',
     ],
 
-    darkMode: 'class',
+    // Portfolio V2 is intentionally dark-only.
+    //
+    // There is deliberately no `darkMode` strategy here. The design tokens (ink-*, bone-*)
+    // are literal colours rather than semantic variables, so `dark:` variants have no
+    // light counterpart to switch to. Enabling `darkMode: 'class'` previously exposed a
+    // theme toggle that could not actually change the page, which is worse than having
+    // no toggle at all. `color-scheme: dark` in app.css keeps native form controls,
+    // scrollbars and select popovers dark instead.
 
     theme: {
         extend: {

@@ -1,22 +1,8 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    {{-- Theme is applied before first paint so the wrong palette is never flashed. --}}
-    <script>
-        (function () {
-            try {
-                var stored = window.localStorage.getItem('srj-theme');
-                var theme = stored === 'light' ? 'light' : 'dark';
-                document.documentElement.classList.toggle('dark', theme !== 'light');
-                document.documentElement.dataset.theme = theme;
-            } catch (e) {
-                document.documentElement.dataset.theme = 'dark';
-            }
-        })();
-    </script>
 
     <x-portfolio.seo
         :title="$seoTitle ?? null"
@@ -31,8 +17,6 @@
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
     <link rel="apple-touch-icon" href="{{ asset('frontend/img/icon/srj-icon.png') }}">
 
-    <link rel="preconnect" href="{{ asset('/') }}" crossorigin>
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-ink-950">
@@ -43,7 +27,10 @@
         Skip to content
     </a>
 
-    <x-portfolio.navbar />
+    {{-- The banner landmark wraps the primary navigation. --}}
+    <header>
+        <x-portfolio.navbar />
+    </header>
 
     <main id="main" tabindex="-1" class="focus:outline-none">
         {{ $slot }}
