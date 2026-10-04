@@ -21,7 +21,7 @@ class ProjectManagementTest extends TestCase
     {
         parent::setUp();
 
-        $this->admin = User::factory()->create();
+        $this->admin = User::factory()->admin()->create();
     }
 
     public function test_admin_pages_require_authentication(): void
@@ -221,7 +221,7 @@ class ProjectManagementTest extends TestCase
         $project->refresh();
 
         $this->assertSame('https://legacy.example.com', $project->link);
-        $this->assertSame('https://legacy.example.com', $project->liveUrl);
+        $this->assertSame('https://legacy.example.com', $project->resolved_live_url);
         $this->assertSame($originalSlug, $project->slug);
     }
 }

@@ -42,8 +42,12 @@ class ProjectController extends Controller
             $project->save();
         }
 
-        $project->screenshots = $this->storeScreenshots($request);
-        $project->save();
+        if ($request->hasFile('screenshots')) {
+            // storeScreenshots() rolls back its own partial write, so a failure here
+            // cannot leave orphaned files behind.
+            $project->screenshots = $this->storeScreenshots($request);
+            $project->save();
+        }
 
         return $this->backToIndex('Data saved successfully.');
     }
@@ -59,6 +63,7 @@ class ProjectController extends Controller
     public function update(ProjectRequest $request, Project $project): RedirectResponse
     {
         $previousThumbnail = $project->thumbnail;
+        $previousScreenshots = $project->screenshots ?? [];
 
         $project->fill($this->payload($request));
 
@@ -77,23 +82,55 @@ class ProjectController extends Controller
         }
 
         if ($request->boolean('remove_thumbnail')) {
-            $this->deleteManagedImage($previousThumbnail);
             $project->thumbnail = null;
         }
 
         if ($request->hasFile('thumbnail')) {
             $project->thumbnail = $this->storeImage($request->file('thumbnail'), self::THUMBNAIL_DIRECTORY);
+        }
+
+        /*
+         * Screenshot replacement is strictly ordered so an existing set can never be
+         * destroyed by a failed upload:
+         *
+         *   1. detect a real upload with hasFile() (an empty file input is not an upload)
+         *   2. store every new file, rolling back the partial set if any store fails
+         *   3. persist the new paths
+         *   4. only then delete the replaced managed files
+         *
+         * With no upload the existing paths and files are left completely untouched.
+         * Validation has already run, so a rejected request never reaches this code.
+         */
+        if ($request->hasFile('screenshots')) {
+            try {
+                $newScreenshots = $this->storeScreenshots($request);
+            } catch (\Throwable $e) {
+                // storeScreenshots() has already removed only the files this request
+                // wrote. The database and the previous screenshot set are untouched.
+                report($e);
+
+                return back()
+                    ->withInput()
+                    ->with('message', [['error', 'The screenshots could not be saved. The previous screenshots were left untouched.']]);
+            }
+
+            $project->screenshots = $newScreenshots;
+            $project->save();
+
+            $this->deleteReplacedScreenshots($previousScreenshots, $newScreenshots);
+
+            return $this->backToIndex('Data updated successfully.');
+        }
+
+        $project->save();
+
+        /*
+         * Everything is persisted. Only now is it safe to remove the files that were
+         * genuinely replaced.
+         */
+        if ($request->boolean('remove_thumbnail') || $request->hasFile('thumbnail')) {
             $this->deleteManagedImage($previousThumbnail);
         }
-
-        if ($request->has('screenshots')) {
-            foreach ($project->screenshots ?? [] as $screenshot) {
-                $this->deleteManagedImage($screenshot, self::SCREENSHOT_DIRECTORY);
-            }
-        }
-
-        $project->screenshots = $this->storeScreenshots($request, $project->screenshots ?? []);
-        $project->save();
 
         return $this->backToIndex('Data updated successfully.');
     }
@@ -164,36 +201,74 @@ class ProjectController extends Controller
     }
 
     /**
-     * @param  array<int, string>  $existing
+     * Store every uploaded screenshot.
+     *
+     * If one file fails to store, everything already written by this request is
+     * removed before the exception propagates, so a failed upload can never leave a
+     * partial set on disk.
+     *
      * @return array<int, string>
      */
-    private function storeScreenshots(ProjectRequest $request, array $existing = []): array
+    private function storeScreenshots(ProjectRequest $request): array
     {
-        if (! $request->hasFile('screenshots')) {
-            return $existing;
-        }
-
         $paths = [];
 
-        foreach ($request->file('screenshots') as $file) {
-            $paths[] = $file->store(self::SCREENSHOT_DIRECTORY, 'public');
+        try {
+            foreach ($request->file('screenshots') as $file) {
+                if (! $file->isValid()) {
+                    throw new \RuntimeException('One of the uploaded screenshots could not be read.');
+                }
+
+                $paths[] = $file->store(self::SCREENSHOT_DIRECTORY, 'public');
+            }
+        } catch (\Throwable $e) {
+            foreach ($paths as $path) {
+                $this->deleteManagedImage($path, self::SCREENSHOT_DIRECTORY);
+            }
+
+            throw $e;
         }
 
         return $paths;
     }
 
     /**
-     * Deletes only files this controller wrote. Anything outside the managed
+     * Delete only the previous screenshots that this controller owns, skipping any
+     * path that is still referenced by the new set.
+     *
+     * @param  array<int, string>  $previous
+     * @param  array<int, string>  $current
+     */
+    private function deleteReplacedScreenshots(array $previous, array $current): void
+    {
+        foreach ($previous as $path) {
+            if (! in_array($path, $current, true)) {
+                $this->deleteManagedImage($path, self::SCREENSHOT_DIRECTORY);
+            }
+        }
+    }
+
+    /**
+     * Delete only files this controller wrote. Anything outside the managed
      * directories - a shared asset, a default placeholder, a legacy path - is
      * left untouched.
      */
     private function deleteManagedImage(?string $path, string $mustStartWith = null): void
     {
-        if (blank($path) || ! str_contains($path, 'projects/')) {
+        if (blank($path)) {
             return;
         }
 
-        if ($mustStartWith !== null && ! str_starts_with($path, $mustStartWith)) {
+        if ($mustStartWith === null) {
+            // Default: only the two directories this controller writes to.
+            if (! str_starts_with($path, self::THUMBNAIL_DIRECTORY.'/')) {
+                return;
+            }
+
+            $mustStartWith = self::THUMBNAIL_DIRECTORY;
+        }
+
+        if (! str_starts_with($path, $mustStartWith.'/')) {
             return;
         }
 
