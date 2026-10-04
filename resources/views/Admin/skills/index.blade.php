@@ -1,65 +1,87 @@
-<x-app-layout>
-    <x-slot name="header">
-        <div class="flex items-center justify-between flex-wrap gap-3">
-            <h2 class="font-semibold text-xl text-white leading-tight">
-                Technologies
-            </h2>
-
-            <x-primary-button as="a" href="{{ route('skill.create') }}" class="text-decoration-none">
-                New technology
-            </x-primary-button>
-        </div>
+<x-app-layout title="Technologies" subtitle="{{ $skills->count() }} {{ Str::plural('technology', $skills->count()) }} recorded.">
+    <x-slot name="actions">
+        <x-admin.button :href="route('skill.create')" size="sm" icon="arrow-right">
+            <span class="hidden sm:inline">Add technology</span>
+            <span class="sm:hidden">Add</span>
+        </x-admin.button>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-primary-900 md:border border-primary-700 shadow-sm sm:rounded-lg">
-                <div class="p-4 md:p-6 text-gray-300">
-                    <div class="overflow-x-auto">
-                        <table class="table-auto w-full border border-collapse border-primary-700">
-                            <thead class="bg-primary-800">
-                                <tr class="text-left">
-                                    <th scope="col" class="px-4 py-2 text-white font-bold whitespace-nowrap">Name</th>
-                                    <th scope="col" class="px-4 py-2 text-white font-bold whitespace-nowrap">Category</th>
-                                    <th scope="col" class="px-4 py-2 text-white font-bold whitespace-nowrap">Order</th>
-                                    <th scope="col" class="px-4 py-2 text-white font-bold whitespace-nowrap">Logo</th>
-                                    <th scope="col" class="px-4 py-2 text-white font-bold whitespace-nowrap">Actions</th>
-                                </tr>
-                            </thead>
+    @forelse ($skills as $skill)
+        <article class="mb-3 overflow-hidden rounded-xl border border-ink-700/80 bg-ink-850/50 transition-colors duration-150 hover:border-ink-600">
+            <div class="flex items-center gap-4 p-4 sm:p-5">
+                @if ($skill->logoUrl())
+                    <img
+                        src="{{ $skill->logoUrl() }}"
+                        alt=""
+                        width="40"
+                        height="40"
+                        loading="lazy"
+                        decoding="async"
+                        class="h-10 w-10 shrink-0 rounded-lg border border-ink-700 bg-white/5 object-contain p-1"
+                    >
+                @else
+                    <span
+                        class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-dashed border-ink-600 font-mono text-[0.65rem] text-bone-400"
+                        aria-hidden="true"
+                    >—</span>
+                @endif
 
-                            <tbody>
-                                @forelse ($skills as $skill)
-                                    <tr class="border-b border-gray-600">
-                                        <td class="px-4 py-2">{{ $skill->display_name }}</td>
-                                        <td class="px-4 py-2">{{ $skill->category ?: '—' }}</td>
-                                        <td class="px-4 py-2">{{ $skill->sort_order }}</td>
-                                        <td class="px-4 py-2">
-                                            @if ($skill->logoUrl())
-                                                <img src="{{ $skill->logoUrl() }}" alt="{{ $skill->display_name }} logo"
-                                                    class="h-9 w-9 rounded object-contain">
-                                            @else
-                                                <span class="text-xs text-gray-500">None</span>
-                                            @endif
-                                        </td>
-                                        <td class="px-4 py-2">
-                                            <a href="{{ route('skill.edit', $skill->id) }}"
-                                                class="text-white hover:text-blue-400 text-decoration-none">
-                                                Edit
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="text-center py-5 text-gray-500">
-                                            No technologies yet.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                <div class="min-w-0 flex-1">
+                    <h2 class="truncate text-sm font-semibold text-bone-50">{{ $skill->display_name }}</h2>
+
+                    <div class="mt-1 flex flex-wrap items-center gap-2">
+                        @if ($skill->category)
+                            <x-admin.badge tone="accent">{{ $skill->category }}</x-admin.badge>
+                        @else
+                            <span class="font-mono text-xs text-bone-400">uncategorised</span>
+                        @endif
+
+                        <span class="font-mono text-xs text-bone-400">
+                            order {{ $skill->sort_order }}
+                        </span>
+
+                        @if ($skill->url)
+                            <a
+                                href="{{ $skill->url }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="inline-flex items-center gap-1 font-mono text-xs text-bone-500 transition-colors hover:text-accent-400"
+                            >
+                                reference
+                                <x-portfolio.icon name="external" class="h-3 w-3" />
+                                <span class="sr-only">opens in a new tab</span>
+                            </a>
+                        @endif
                     </div>
                 </div>
+
+                <div class="flex shrink-0 items-center gap-2">
+                    <x-admin.button :href="route('skill.edit', $skill->id)" variant="secondary" size="sm" icon="terminal">
+                        Edit
+                    </x-admin.button>
+
+                    {{-- Preserves the existing delete confirmation chain. --}}
+                    <x-admin.button
+                        variant="danger-ghost"
+                        size="sm"
+                        icon="close"
+                        data-toggle="delete-button"
+                        :href="route('skill.destroy', $skill->id)"
+                    >
+                        <span class="sr-only">Delete {{ $skill->display_name }}</span>
+                    </x-admin.button>
+                </div>
             </div>
-        </div>
-    </div>
+        </article>
+    @empty
+        <x-admin.empty-state
+            icon="sparkles"
+            title="No technologies yet"
+            description="Technologies you add here appear as badges in the tech stack section of your portfolio."
+        >
+            <x-admin.button :href="route('skill.create')" icon="arrow-right">
+                Add your first technology
+            </x-admin.button>
+        </x-admin.empty-state>
+    @endforelse
 </x-app-layout>

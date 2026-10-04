@@ -1,39 +1,71 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('password.store') }}">
+<x-guest-layout title="Reset password">
+    <div class="mb-8">
+        <h1 class="text-2xl font-semibold tracking-tightest text-bone-50">
+            Choose a new password
+        </h1>
+
+        <p class="mt-2 text-sm leading-relaxed text-bone-400">
+            Use a long, random password. It is hashed before it is stored.
+        </p>
+    </div>
+
+    <form method="POST" action="{{ route('password.store') }}" class="space-y-5">
         @csrf
 
-        <!-- Password Reset Token -->
+        {{-- Password reset token, unchanged from Breeze. --}}
         <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $request->email)" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+        <x-admin.field for="email" label="Email" required>
+            <x-admin.input
+                id="email"
+                name="email"
+                type="email"
+                :value="old('email', $request->email)"
+                :invalid="$errors->has('email')"
+                autocomplete="username"
+                inputmode="email"
+                required
+                autofocus
+            />
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+            @error('email')
+                <p class="text-xs text-red-300">{{ $message }}</p>
+            @enderror
+        </x-admin.field>
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+        <x-admin.field for="password" label="New password" required>
+            <x-admin.input
+                id="password"
+                name="password"
+                type="password"
+                :invalid="$errors->has('password')"
+                autocomplete="new-password"
+                required
+                placeholder="••••••••••••"
+            />
 
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                                type="password"
-                                name="password_confirmation" required autocomplete="new-password" />
+            @error('password')
+                <p class="text-xs text-red-300">{{ $message }}</p>
+            @enderror
+        </x-admin.field>
 
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
+        <x-admin.field for="password_confirmation" label="Confirm password" required>
+            <x-admin.input
+                id="password_confirmation"
+                name="password_confirmation"
+                type="password"
+                autocomplete="new-password"
+                required
+                placeholder="••••••••••••"
+            />
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Reset Password') }}
-            </x-primary-button>
-        </div>
+            @error('password_confirmation')
+                <p class="text-xs text-red-300">{{ $message }}</p>
+            @enderror
+        </x-admin.field>
+
+        <x-admin.button type="submit" size="lg" class="w-full">
+            Reset password
+        </x-admin.button>
     </form>
 </x-guest-layout>

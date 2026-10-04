@@ -1,346 +1,410 @@
-<x-app-layout>
-    <x-slot name="header">
-        <div class="flex items-center justify-between flex-wrap gap-3">
-            <h2 class="font-semibold text-xl text-gray-100 leading-tight">
-                {{ isset($data) ? 'Edit project' : 'New project' }}
-            </h2>
-
-            @isset($data)
-                <span class="font-mono text-xs text-gray-400">
-                    Public URL: /projects/{{ $data->slug ?: 'no-slug-yet' }}
-                </span>
-            @endisset
-        </div>
+<x-app-layout
+    title="{{ isset($data) ? 'Edit project' : 'New project' }}"
+    subtitle="{{ isset($data) ? 'Changes appear on the public portfolio as soon as you save.' : 'Create a project and publish it to your portfolio.' }}"
+>
+    <x-slot name="actions">
+        <x-admin.button :href="route('project.index')" variant="ghost" size="sm" icon="arrow-left">
+            <span class="hidden sm:inline">Back</span>
+            <span class="sm:hidden">Back</span>
+        </x-admin.button>
     </x-slot>
 
     <form
         method="post"
         action="{{ isset($data) ? route('project.update', $data->id) : route('project.store') }}"
         enctype="multipart/form-data"
-        class="mt-6 space-y-6"
+        class="mx-auto max-w-3xl space-y-5"
     >
         @csrf
         @isset($data)
             @method('put')
         @endisset
 
-        <div class="py-12">
-            <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
-                {{-- ====================== BASICS ====================== --}}
-                <section class="bg-primary-900 md:border border-primary-700 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="border-b border-primary-700 px-6 py-4">
-                        <h3 class="font-semibold text-white">Basics</h3>
-                        <p class="mt-1 text-sm text-gray-400">
-                            Only the title is required. Everything else stays hidden until it has content.
+        {{-- ── Basic information ───────────────────────────────────── --}}
+        <x-admin.panel title="Basic information" description="Only the title is required. Everything else stays hidden until it has content.">
+            <div class="space-y-5">
+                <x-admin.field for="title" label="Title" required>
+                    <x-admin.input
+                        id="title"
+                        name="title"
+                        type="text"
+                        maxlength="150"
+                        :value="old('title', $data->title ?? null)"
+                        :invalid="$errors->has('title')"
+                        placeholder="Lensku"
+                        required
+                        autofocus
+                    />
+
+                    @error('title')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                </x-admin.field>
+
+                <x-admin.field
+                    for="slug"
+                    label="Slug"
+                    help="Leave blank to generate one from the title. This becomes the public URL and changing it after publication breaks existing links."
+                >
+                    <x-admin.input
+                        id="slug"
+                        name="slug"
+                        type="text"
+                        maxlength="180"
+                        :value="old('slug', $data->slug ?? null)"
+                        :invalid="$errors->has('slug')"
+                        placeholder="generated-from-the-title"
+                        class="font-mono"
+                    />
+
+                    @if (isset($data) && $data->slug)
+                        <p class="font-mono text-xs text-bone-500">
+                            /projects/{{ $data->slug }}
                         </p>
-                    </div>
+                    @endif
 
-                    <div class="p-6 text-gray-100 space-y-5">
-                        <div>
-                            <x-input-label for="title" value="Title" class="text-gray-200" />
-                            <x-text-input id="title" name="title" type="text" maxlength="150"
-                                class="mt-1 block w-full"
-                                :value="old('title', $data->title ?? null)" required autofocus />
-                            <x-input-error class="mt-2" :messages="$errors->get('title')" />
-                        </div>
+                    @error('slug')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                </x-admin.field>
 
-                        <div>
-                            <x-input-label for="slug" value="Slug" class="text-gray-200" />
-                            <x-text-input id="slug" name="slug" type="text" maxlength="180"
-                                placeholder="generated-from-the-title"
-                                class="mt-1 block w-full"
-                                :value="old('slug', $data->slug ?? null)" />
-                            <p class="mt-1 text-xs text-gray-400">
-                                Leave blank to generate one. Must be URL-safe (letters, numbers, dashes).
-                            </p>
-                            <x-input-error class="mt-2" :messages="$errors->get('slug')" />
-                        </div>
+                <x-admin.field
+                    for="short_description"
+                    label="Short description"
+                    help="One or two sentences. Used on cards and as the social preview text."
+                >
+                    <x-admin.textarea
+                        id="short_description"
+                        name="short_description"
+                        rows="2"
+                        maxlength="300"
+                        :invalid="$errors->has('short_description')"
+                        placeholder="AI-powered visual SKU retrieval application."
+                    >{{ old('short_description', $data->short_description ?? null) }}</x-admin.textarea>
 
-                        <div>
-                            <x-input-label for="short_description" value="Short description" class="text-gray-200" />
-                            <x-text-input id="short_description" name="short_description" type="text" maxlength="300"
-                                class="mt-1 block w-full"
-                                :value="old('short_description', $data->short_description ?? null)" />
-                            <p class="mt-1 text-xs text-gray-400">
-                                One or two sentences. Shown on cards, in search results and as the social preview.
-                            </p>
-                            <x-input-error class="mt-2" :messages="$errors->get('short_description')" />
-                        </div>
+                    @error('short_description')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                </x-admin.field>
 
-                        <div>
-                            <x-input-label for="description" value="Description" class="text-gray-200" />
-                            <textarea id="description" name="description" rows="8"
-                                class="mt-1 block w-full rounded-md border-primary-700 bg-primary-800 text-gray-100 focus:border-indigo-500 focus:ring-indigo-500"
-                                placeholder="The overview shown on the case study page. Blank paragraphs separate paragraphs.">{{ old('description', $data->description ?? null) }}</textarea>
-                            <x-input-error class="mt-2" :messages="$errors->get('description')" />
-                        </div>
-                    </div>
-                </section>
+                <x-admin.field
+                    for="description"
+                    label="Description"
+                    help="The case study overview. A blank line starts a new paragraph."
+                >
+                    <x-admin.textarea
+                        id="description"
+                        name="description"
+                        rows="6"
+                        :invalid="$errors->has('description')"
+                    >{{ old('description', $data->description ?? null) }}</x-admin.textarea>
 
-                {{-- ==================== CLASSIFICATION =================== --}}
-                <section class="bg-primary-900 md:border border-primary-700 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="border-b border-primary-700 px-6 py-4">
-                        <h3 class="font-semibold text-white">Classification</h3>
-                    </div>
+                    @error('description')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                </x-admin.field>
+            </div>
+        </x-admin.panel>
 
-                    <div class="p-6 text-gray-100 space-y-5">
-                        <div>
-                            <x-input-label for="project_type" value="Project type" class="text-gray-200" />
-                            <select id="project_type" name="project_type"
-                                class="mt-1 block w-full rounded-md border-primary-700 bg-primary-800 text-gray-100">
-                                <option value="">— None —</option>
-                                @foreach ($projectTypes ?? [] as $type)
-                                    <option value="{{ $type }}" @selected(old('project_type', $data->project_type ?? null) === $type)>
-                                        {{ $type }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <x-input-error class="mt-2" :messages="$errors->get('project_type')" />
-                        </div>
+        {{-- ── Media ───────────────────────────────────────────────── --}}
+        <x-admin.panel title="Media" description="A 16:9 thumbnail is used on cards, as the case study hero and as the social preview image.">
+            <div class="space-y-6">
+                <x-admin.field for="thumbnail" label="Thumbnail">
+                    @if (isset($data) && $data->thumbnailUrl())
+                        <img
+                            src="{{ $data->thumbnailUrl() }}"
+                            alt="Current thumbnail"
+                            class="mb-3 w-full max-w-xs rounded-lg border border-ink-700 object-cover"
+                        >
+                    @endif
 
-                        <div>
-                            <x-input-label for="tech_stack_input" value="Tech stack" class="text-gray-200" />
-                            <input id="tech_stack_input" type="text"
-                                class="mt-1 block w-full rounded-md border-primary-700 bg-primary-800 text-gray-100"
-                                placeholder="Laravel, FastAPI, FAISS"
-                                value="{{ old('tech_stack_csv', isset($data) ? implode(', ', $data->tech_stack) : '') }}"
-                                data-tech-stack-input>
-                            <p class="mt-1 text-xs text-gray-400">Comma-separated. Rendered as badges.</p>
-                            <x-input-error class="mt-2" :messages="$errors->get('tech_stack')" />
-                        </div>
+                    <input
+                        id="thumbnail"
+                        name="thumbnail"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/avif"
+                        class="block w-full text-sm text-bone-400 file:mr-3 file:rounded-lg file:border-0 file:bg-ink-800 file:px-3.5 file:py-2 file:text-sm file:font-medium file:text-bone-100 file:hover:bg-ink-700"
+                    >
 
-                        <div class="grid gap-5 sm:grid-cols-3">
-                            <div>
-                                <x-input-label for="role" value="Role" class="text-gray-200" />
-                                <x-text-input id="role" name="role" type="text" maxlength="120"
-                                    class="mt-1 block w-full"
-                                    :value="old('role', $data->role ?? null)" />
-                                <x-input-error class="mt-2" :messages="$errors->get('role')" />
-                            </div>
+                    <p class="mt-1.5 text-xs text-bone-500">JPEG, PNG, WebP or AVIF. Maximum 2 MB.</p>
 
-                            <div>
-                                <x-input-label for="year" value="Year" class="text-gray-200" />
-                                <x-text-input id="year" name="year" type="text" maxlength="4" inputmode="numeric"
-                                    placeholder="2025"
-                                    class="mt-1 block w-full"
-                                    :value="old('year', $data->year ?? null)" />
-                                <x-input-error class="mt-2" :messages="$errors->get('year')" />
-                            </div>
+                    @error('thumbnail')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
 
-                            <div>
-                                <x-input-label for="sort_order" value="Sort order" class="text-gray-200" />
-                                <x-text-input id="sort_order" name="sort_order" type="number" min="0" max="65535"
-                                    class="mt-1 block w-full"
-                                    :value="old('sort_order', $data->sort_order ?? 0)" />
-                                <p class="mt-1 text-xs text-gray-400">Lower numbers appear first.</p>
-                                <x-input-error class="mt-2" :messages="$errors->get('sort_order')" />
-                            </div>
-                        </div>
+                    @if (isset($data) && $data->thumbnail)
+                        <x-admin.checkbox
+                            class="mt-3"
+                            name="remove_thumbnail"
+                            value="1"
+                            label="Remove current thumbnail"
+                        />
+                    @endif
+                </x-admin.field>
 
-                        <div class="grid gap-5 sm:grid-cols-2">
-                            <div>
-                                <x-input-label for="status" value="Status" class="text-gray-200" />
-                                <select id="status" name="status"
-                                    class="mt-1 block w-full rounded-md border-primary-700 bg-primary-800 text-gray-100">
-                                    @foreach (['live' => 'Live', 'in_progress' => 'In progress', 'archived' => 'Archived'] as $value => $label)
-                                        <option value="{{ $value }}" @selected(old('status', $data->status ?? 'live') === $value)>
-                                            {{ $label }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <p class="mt-1 text-xs text-gray-400">Archived projects are hidden from the public site.</p>
-                                <x-input-error class="mt-2" :messages="$errors->get('status')" />
-                            </div>
+                <x-admin.field
+                    for="screenshots"
+                    label="Case study screenshots"
+                    help="Uploading new screenshots replaces the existing set. Nothing is deleted unless the new files save successfully."
+                >
+                    <input
+                        id="screenshots"
+                        name="screenshots[]"
+                        type="file"
+                        multiple
+                        accept="image/jpeg,image/png,image/webp,image/avif"
+                        class="block w-full text-sm text-bone-400 file:mr-3 file:rounded-lg file:border-0 file:bg-ink-800 file:px-3.5 file:py-2 file:text-sm file:font-medium file:text-bone-100 file:hover:bg-ink-700"
+                    >
 
-                            <div class="flex items-end pb-2">
-                                <label class="inline-flex items-center gap-3 text-gray-200">
-                                    <input type="hidden" name="featured" value="0">
-                                    <input type="checkbox" value="1" name="featured"
-                                        @checked(old('featured', $data->featured ?? false))
-                                        class="rounded border-primary-600 bg-primary-800 text-indigo-500 focus:ring-indigo-500">
-                                    Show in Selected work on the homepage
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                    <p class="mt-1.5 text-xs text-bone-500">Maximum 12 files, 2 MB each.</p>
 
-                {{-- ======================== LINKS ======================= --}}
-                <section class="bg-primary-900 md:border border-primary-700 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="border-b border-primary-700 px-6 py-4">
-                        <h3 class="font-semibold text-white">Links</h3>
-                        <p class="mt-1 text-sm text-gray-400">
-                            Buttons only appear on the public site when the matching URL is filled in.
-                            Nothing is invented.
-                        </p>
-                    </div>
+                    @error('screenshots')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                    @error('screenshots.*')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
 
-                    <div class="p-6 text-gray-100 space-y-5">
-                        <div>
-                            <x-input-label for="live_url" value="Live URL" class="text-gray-200" />
-                            <x-text-input id="live_url" name="live_url" type="url"
-                                placeholder="https://example.com"
-                                class="mt-1 block w-full"
-                                :value="old('live_url', $data->live_url ?? null)" />
-                            <x-input-error class="mt-2" :messages="$errors->get('live_url')" />
-                        </div>
+                    @if (isset($data) && $data->screenshots !== [])
+                        <ul class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                            @foreach ($data->screenshots as $screenshot)
+                                <li>
+                                    <img
+                                        src="{{ asset('storage/'.$screenshot) }}"
+                                        alt="Existing case study screenshot"
+                                        loading="lazy"
+                                        decoding="async"
+                                        class="aspect-video w-full rounded-lg border border-ink-700 object-cover"
+                                    >
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                </x-admin.field>
+            </div>
+        </x-admin.panel>
 
-                        <div>
-                            <x-input-label for="link" value="Legacy link column" class="text-gray-200" />
-                            <x-text-input id="link" name="link" type="text"
-                                class="mt-1 block w-full"
-                                :value="old('link', $data->link ?? null)" />
-                            <p class="mt-1 text-xs text-gray-400">
-                                Kept for backwards compatibility. The public site falls back to this value when
-                                Live URL is empty.
-                            </p>
-                            <x-input-error class="mt-2" :messages="$errors->get('link')" />
-                        </div>
+        {{-- ── Classification ─────────────────────────────────────── --}}
+        <x-admin.panel title="Classification">
+            <div class="space-y-5">
+                <x-admin.field for="project_type" label="Project type">
+                    <x-admin.select
+                        id="project_type"
+                        name="project_type"
+                        :options="array_combine($projectTypes ?? [], $projectTypes ?? [])"
+                        :selected="old('project_type', $data->project_type ?? null)"
+                        :placeholder="'— None —'"
+                        :invalid="$errors->has('project_type')"
+                    />
 
-                        <div>
-                            <x-input-label for="github_url" value="GitHub URL" class="text-gray-200" />
-                            <x-text-input id="github_url" name="github_url" type="url"
-                                placeholder="https://github.com/…"
-                                class="mt-1 block w-full"
-                                :value="old('github_url', $data->github_url ?? null)" />
-                            <x-input-error class="mt-2" :messages="$errors->get('github_url')" />
-                        </div>
-                    </div>
-                </section>
+                    @error('project_type')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                </x-admin.field>
 
-                {{-- ==================== CASE STUDY ===================== --}}
-                <section class="bg-primary-900 md:border border-primary-700 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="border-b border-primary-700 px-6 py-4">
-                        <h3 class="font-semibold text-white">Case study</h3>
-                        <p class="mt-1 text-sm text-gray-400">
-                            Each block appears only when it has content. Leave a field blank and the section
-                            is hidden entirely.
-                        </p>
-                    </div>
+                <x-admin.field for="tech_stack_input" label="Tech stack" help="Comma-separated. Rendered as badges on the project card.">
+                    {{--
+                        The visible input is free text for usability; a small inline
+                        script converts it into the tech_stack[] array the controller
+                        validates. Without JavaScript the arrays are simply absent and
+                        validation treats them as empty rather than failing.
+                    --}}
+                    <x-admin.input
+                        id="tech_stack_input"
+                        type="text"
+                        data-tech-stack-input
+                        :value="old('tech_stack_csv', isset($data) ? implode(', ', $data->tech_stack) : '')"
+                        placeholder="Laravel, FastAPI, FAISS"
+                        class="font-mono"
+                    />
 
-                    <div class="p-6 text-gray-100 space-y-5">
-                        <div>
-                            <x-input-label for="problem" value="Problem" class="text-gray-200" />
-                            <textarea id="problem" name="problem" rows="5"
-                                class="mt-1 block w-full rounded-md border-primary-700 bg-primary-800 text-gray-100">{{ old('problem', $data->problem ?? null) }}</textarea>
-                            <x-input-error class="mt-2" :messages="$errors->get('problem')" />
-                        </div>
+                    @error('tech_stack')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                    @error('tech_stack.*')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                </x-admin.field>
 
-                        <div>
-                            <x-input-label for="solution" value="Solution" class="text-gray-200" />
-                            <textarea id="solution" name="solution" rows="5"
-                                class="mt-1 block w-full rounded-md border-primary-700 bg-primary-800 text-gray-100">{{ old('solution', $data->solution ?? null) }}</textarea>
-                            <x-input-error class="mt-2" :messages="$errors->get('solution')" />
-                        </div>
+                <div class="grid gap-5 sm:grid-cols-3">
+                    <x-admin.field for="role" label="Role">
+                        <x-admin.input
+                            id="role"
+                            name="role"
+                            type="text"
+                            maxlength="120"
+                            :value="old('role', $data->role ?? null)"
+                            :invalid="$errors->has('role')"
+                            placeholder="Full Stack Developer"
+                        />
 
-                        <div>
-                            <x-input-label for="highlights_input" value="Key features" class="text-gray-200" />
-                            <textarea id="highlights_input" name="highlights_csv" rows="5"
-                                class="mt-1 block w-full rounded-md border-primary-700 bg-primary-800 text-gray-100"
-                                placeholder="One feature per line">{{ old('highlights_csv', isset($data) ? implode("\n", $data->highlights) : '') }}</textarea>
-                            <p class="mt-1 text-xs text-gray-400">One per line. Never invented — only real features.</p>
-                            <x-input-error class="mt-2" :messages="$errors->get('highlights')" />
-                        </div>
+                        @error('role')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                    </x-admin.field>
 
-                        <div>
-                            <x-input-label for="challenges" value="Challenges" class="text-gray-200" />
-                            <textarea id="challenges" name="challenges" rows="4"
-                                class="mt-1 block w-full rounded-md border-primary-700 bg-primary-800 text-gray-100">{{ old('challenges', $data->challenges ?? null) }}</textarea>
-                            <x-input-error class="mt-2" :messages="$errors->get('challenges')" />
-                        </div>
+                    <x-admin.field for="year" label="Year">
+                        <x-admin.input
+                            id="year"
+                            name="year"
+                            type="text"
+                            maxlength="4"
+                            inputmode="numeric"
+                            :value="old('year', $data->year ?? null)"
+                            :invalid="$errors->has('year')"
+                            placeholder="2025"
+                            class="font-mono"
+                        />
 
-                        <div>
-                            <x-input-label for="outcome" value="Outcome" class="text-gray-200" />
-                            <textarea id="outcome" name="outcome" rows="4"
-                                class="mt-1 block w-full rounded-md border-primary-700 bg-primary-800 text-gray-100">{{ old('outcome', $data->outcome ?? null) }}</textarea>
-                            <x-input-error class="mt-2" :messages="$errors->get('outcome')" />
-                        </div>
-                    </div>
-                </section>
+                        @error('year')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                    </x-admin.field>
 
-                {{-- ======================= MEDIA ======================== --}}
-                <section class="bg-primary-900 md:border border-primary-700 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="border-b border-primary-700 px-6 py-4">
-                        <h3 class="font-semibold text-white">Media</h3>
-                        <p class="mt-1 text-sm text-gray-400">
-                            A 16:9 thumbnail is used on cards, as the case study hero and as the social
-                            preview image. Projects without one fall back to a designed placeholder.
-                        </p>
-                    </div>
+                    <x-admin.field for="sort_order" label="Sort order" help="Lower numbers appear first.">
+                        <x-admin.input
+                            id="sort_order"
+                            name="sort_order"
+                            type="number"
+                            min="0"
+                            max="65535"
+                            :value="old('sort_order', $data->sort_order ?? 0)"
+                            :invalid="$errors->has('sort_order')"
+                            class="font-mono"
+                        />
 
-                    <div class="p-6 text-gray-100 space-y-5">
-                        <div>
-                            <x-input-label for="thumbnail" value="Thumbnail" class="text-gray-200" />
-
-                            @if (isset($data) && $data->thumbnailUrl())
-                                <img src="{{ $data->thumbnailUrl() }}" alt="Current thumbnail preview"
-                                    class="mt-2 max-w-sm rounded-lg border border-primary-700">
-                            @endif
-
-                            <input id="thumbnail" name="thumbnail" type="file"
-                                accept="image/jpeg,image/png,image/webp,image/avif"
-                                class="mt-2 block w-full text-sm text-gray-400 file:mr-4 file:rounded-md file:border-0 file:bg-primary-700 file:px-4 file:py-2 file:text-sm file:font-medium file:text-gray-100 hover:file:bg-primary-600">
-
-                            <p class="mt-1 text-xs text-gray-400">JPEG, PNG, WebP or AVIF. Maximum 2 MB.</p>
-                            <x-input-error class="mt-2" :messages="$errors->get('thumbnail')" />
-
-                            @if (isset($data) && $data->thumbnail)
-                                <label class="mt-3 inline-flex items-center gap-2 text-sm text-gray-300">
-                                    <input type="checkbox" name="remove_thumbnail" value="1"
-                                        class="rounded border-primary-600 bg-primary-800 text-red-500 focus:ring-red-500">
-                                    Remove current thumbnail
-                                </label>
-                            @endif
-                        </div>
-
-                        <div>
-                            <x-input-label for="screenshots" value="Case study screenshots" class="text-gray-200" />
-                            <input id="screenshots" name="screenshots[]" type="file" multiple
-                                accept="image/jpeg,image/png,image/webp,image/avif"
-                                class="mt-2 block w-full text-sm text-gray-400 file:mr-4 file:rounded-md file:border-0 file:bg-primary-700 file:px-4 file:py-2 file:text-sm file:font-medium file:text-gray-100 hover:file:bg-primary-600">
-                            <p class="mt-1 text-xs text-gray-400">
-                                Uploading new screenshots replaces the existing set.
-                            </p>
-                            <x-input-error class="mt-2" :messages="$errors->get('screenshots')" />
-
-                            @if (isset($data) && $data->screenshots !== [])
-                                <ul class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                                    @foreach ($data->screenshots as $screenshot)
-                                        <img src="{{ asset('storage/'.$screenshot) }}"
-                                            alt="Existing case study screenshot"
-                                            class="rounded-lg border border-primary-700">
-                                    @endforeach
-                                </ul>
-                            @endif
-                        </div>
-                    </div>
-                </section>
-
-                <div class="flex flex-wrap items-center justify-end gap-3">
-                    @isset($data)
-                        <x-danger-button type="button" data-toggle="delete-button"
-                            href="{{ route('project.destroy', $data->id) }}" class="mr-auto">
-                            Delete
-                        </x-danger-button>
-                    @endisset
-
-                    <x-back-button as="a" href="{{ route('project.index') }}">Cancel</x-back-button>
-
-                    <x-primary-button type="submit" class="bg-primary">
-                        {{ isset($data) ? 'Save changes' : 'Create project' }}
-                    </x-primary-button>
+                        @error('sort_order')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                    </x-admin.field>
                 </div>
             </div>
+        </x-admin.panel>
+
+        {{-- ── Links ───────────────────────────────────────────────── --}}
+        <x-admin.panel title="Links" description="Buttons appear on the public site only when the matching URL is filled in. Nothing is invented.">
+            <div class="space-y-5">
+                <x-admin.field for="live_url" label="Live URL">
+                    <x-admin.input
+                        id="live_url"
+                        name="live_url"
+                        type="url"
+                        :value="old('live_url', $data->live_url ?? null)"
+                        :invalid="$errors->has('live_url')"
+                        placeholder="https://example.com"
+                    />
+
+                    @error('live_url')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                </x-admin.field>
+
+                <x-admin.field for="github_url" label="GitHub URL">
+                    <x-admin.input
+                        id="github_url"
+                        name="github_url"
+                        type="url"
+                        :value="old('github_url', $data->github_url ?? null)"
+                        :invalid="$errors->has('github_url')"
+                        placeholder="https://github.com/…"
+                    />
+
+                    @error('github_url')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                </x-admin.field>
+
+                <x-admin.field
+                    for="link"
+                    label="Legacy link column"
+                    help="Kept for backwards compatibility. The public site falls back to this value when Live URL is empty."
+                >
+                    <x-admin.input
+                        id="link"
+                        name="link"
+                        type="text"
+                        :value="old('link', $data->link ?? null)"
+                        :invalid="$errors->has('link')"
+                        class="font-mono"
+                    />
+
+                    @error('link')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                </x-admin.field>
+            </div>
+        </x-admin.panel>
+
+        {{-- ── Case study ──────────────────────────────────────────── --}}
+        <x-admin.panel title="Case study" description="Each section appears only when it has content. Leave a field blank and its section is hidden entirely.">
+            <div class="space-y-5">
+                <x-admin.field for="problem" label="Problem">
+                    <x-admin.textarea id="problem" name="problem" rows="4" :invalid="$errors->has('problem')">{{ old('problem', $data->problem ?? null) }}</x-admin.textarea>
+                    @error('problem')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                </x-admin.field>
+
+                <x-admin.field for="solution" label="Solution">
+                    <x-admin.textarea id="solution" name="solution" rows="4" :invalid="$errors->has('solution')">{{ old('solution', $data->solution ?? null) }}</x-admin.textarea>
+                    @error('solution')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                </x-admin.field>
+
+                <x-admin.field for="highlights_input" label="Key features" help="One feature per line. Only real features — nothing is generated.">
+                    <x-admin.textarea
+                        id="highlights_input"
+                        name="highlights_csv"
+                        rows="4"
+                        data-highlights-input
+                        placeholder="One feature per line"
+                    >{{ old('highlights_csv', isset($data) ? implode("\n", $data->highlights) : '') }}</x-admin.textarea>
+
+                    @error('highlights')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                    @error('highlights.*')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                </x-admin.field>
+
+                <x-admin.field for="challenges" label="Challenges">
+                    <x-admin.textarea id="challenges" name="challenges" rows="3" :invalid="$errors->has('challenges')">{{ old('challenges', $data->challenges ?? null) }}</x-admin.textarea>
+                    @error('challenges')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                </x-admin.field>
+
+                <x-admin.field for="outcome" label="Outcome">
+                    <x-admin.textarea id="outcome" name="outcome" rows="3" :invalid="$errors->has('outcome')">{{ old('outcome', $data->outcome ?? null) }}</x-admin.textarea>
+                    @error('outcome')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                </x-admin.field>
+            </div>
+        </x-admin.panel>
+
+        {{-- ── Publication ─────────────────────────────────────────── --}}
+        <x-admin.panel title="Publication">
+            <div class="space-y-5">
+                <x-admin.field for="status" label="Status" help="Archived projects are withdrawn from the public site and return 404.">
+                    <x-admin.select
+                        id="status"
+                        name="status"
+                        :options="[
+                            \App\Models\Project::STATUS_LIVE => 'Live — publicly visible',
+                            \App\Models\Project::STATUS_IN_PROGRESS => 'In progress — visible with a badge',
+                            \App\Models\Project::STATUS_ARCHIVED => 'Archived — withdrawn',
+                        ]"
+                        :selected="old('status', $data->status ?? \App\Models\Project::STATUS_LIVE)"
+                        :invalid="$errors->has('status')"
+                    />
+
+                    @error('status')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                </x-admin.field>
+
+                {{-- Hidden first so an unchecked checkbox still submits 0. --}}
+                <input type="hidden" name="featured" value="0">
+
+                <x-admin.checkbox
+                    name="featured"
+                    value="1"
+                    :checked="old('featured', $data->featured ?? false)"
+                    label="Show in Selected work on the homepage"
+                    description="Only applies to publicly visible projects."
+                />
+            </div>
+        </x-admin.panel>
+
+        {{-- ── Actions ─────────────────────────────────────────────── --}}
+        <div class="flex flex-wrap items-center gap-3 border-t border-ink-700/70 pt-5">
+            @isset($data)
+                {{-- Preserves the existing delete confirmation chain. --}}
+                <x-admin.button
+                    variant="danger-ghost"
+                    icon="close"
+                    data-toggle="delete-button"
+                    :href="route('project.destroy', $data->id)"
+                    class="sm:mr-auto"
+                >
+                    Delete
+                </x-admin.button>
+            @endisset
+
+            <x-admin.button :href="route('project.index')" variant="ghost">
+                Cancel
+            </x-admin.button>
+
+            <x-admin.button type="submit">
+                {{ isset($data) ? 'Save changes' : 'Create project' }}
+            </x-admin.button>
         </div>
     </form>
 
     @push('scripts')
         <script>
             /*
-             * Converts the friendly comma-separated / one-per-line text inputs into the
-             * array inputs the controller expects. No dependency, and it degrades to
-             * a normal form submission if JavaScript never runs (validation then
-             * rejects the absent arrays gracefully).
+             * Converts the friendly comma-separated / one-per-line inputs into the
+             * array inputs the controller validates. No dependency. If this script
+             * never runs the arrays are simply absent, which validation treats as
+             * empty rather than as an error.
              */
             (function () {
                 function split(text, separator) {
@@ -350,25 +414,33 @@
                         .filter(function (value) { return value.length > 0; });
                 }
 
-                function transfer(sourceSelector, targetName, values) {
-                    var source = document.querySelector(sourceSelector);
+                function append(source, name, values) {
                     if (!source) return;
 
                     values.forEach(function (value) {
                         var field = document.createElement('input');
                         field.type = 'hidden';
-                        field.name = targetName + '[]';
+                        field.name = name + '[]';
                         field.value = value;
                         source.form.appendChild(field);
                     });
                 }
 
-                var stackInput = document.querySelector('[data-tech-stack-input]');
-                var highlightsInput = document.getElementById('highlights_input');
+                var form = document.querySelector('form[enctype="multipart/form-data"]');
+                if (!form) return;
 
-                document.querySelector('form').addEventListener('submit', function () {
-                    transfer('[data-tech-stack-input]', 'tech_stack', split(stackInput ? stackInput.value : '', ','));
-                    transfer('#highlights_input', 'highlights', split(highlightsInput ? highlightsInput.value : '\n'));
+                form.addEventListener('submit', function () {
+                    append(
+                        document.querySelector('[data-tech-stack-input]'),
+                        'tech_stack',
+                        split((document.querySelector('[data-tech-stack-input]') || {}).value, ',')
+                    );
+
+                    append(
+                        document.querySelector('[data-highlights-input]'),
+                        'highlights',
+                        split((document.querySelector('[data-highlights-input]') || {}).value, '\n')
+                    );
                 });
             })();
         </script>

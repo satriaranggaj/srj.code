@@ -1,65 +1,98 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-white leading-tight">
-            Messages
-        </h2>
-    </x-slot>
+<x-app-layout
+    title="Messages"
+    subtitle="{{ $messages->total() }} {{ Str::plural('message', $messages->total()) }} from the public contact form."
+>
+    @if ($messages->isEmpty())
+        <x-admin.empty-state
+            icon="mail"
+            title="No messages yet"
+            description="Enquiries submitted through the contact form on your portfolio arrive here."
+        />
+    @else
+        {{-- Unread messages are visually distinct, but the state comes from the
+             real `is_read` column rather than being inferred or invented. --}}
+        <div class="space-y-4">
+            @foreach ($messages as $message)
+                <article @class([
+                    'overflow-hidden rounded-xl border transition-colors duration-150',
+                    'border-accent-400/30 bg-ink-850/70' => ! $message->is_read,
+                    'border-ink-700/80 bg-ink-850/40' => $message->is_read,
+                ])>
+                    <div class="p-4 sm:p-5">
+                        <header class="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+                            <div class="min-w-0">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <h2 class="text-sm font-semibold text-bone-50">
+                                        {{ $message->subject ?: '(no subject)' }}
+                                    </h2>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-primary-900 md:border border-primary-700 shadow-sm sm:rounded-lg">
-                <div class="p-4 md:p-6 text-gray-300 space-y-4">
-                    @forelse ($messages as $message)
-                        <article @class([
-                            'rounded-lg border p-4',
-                            'border-accent-500/40 bg-primary-800' => ! $message->is_read,
-                            'border-primary-700' => $message->is_read,
-                        ])>
-                            <header class="flex flex-wrap items-baseline justify-between gap-2">
-                                <h3 class="font-semibold text-white">
-                                    {{ $message->subject ?: '(no subject)' }}
-                                </h3>
+                                    @unless ($message->is_read)
+                                        <x-admin.badge tone="accent">Unread</x-admin.badge>
+                                    @endunless
+                                </div>
 
-                                <time class="font-mono text-xs text-gray-500"
-                                    datetime="{{ $message->created_at->toIso8601String() }}">
-                                    {{ $message->created_at->diffForHumans() }}
-                                </time>
-                            </header>
+                                <p class="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-bone-500">
+                                    <span class="text-bone-300">{{ $message->name }}</span>
+                                    <span aria-hidden="true">·</span>
+                                    <a
+                                        href="mailto:{{ $message->email }}"
+                                        class="rounded font-mono transition-colors hover:text-accent-400"
+                                    >{{ $message->email }}</a>
+                                </p>
+                            </div>
 
-                            <p class="mt-1 text-sm text-gray-400">
-                                {{ $message->name }} ·
-                                <a href="mailto:{{ $message->email }}" class="hover:text-blue-400">{{ $message->email }}</a>
-                            </p>
+                            <time
+                                class="shrink-0 font-mono text-xs text-bone-500"
+                                datetime="{{ $message->created_at->toIso8601String() }}"
+                                title="{{ $message->created_at->format('j M Y, H:i') }}"
+                            >{{ $message->created_at->diffForHumans() }}</time>
+                        </header>
 
-                            <p class="mt-3 whitespace-pre-line text-sm leading-relaxed text-gray-300">{{ $message->message }}</p>
-
-                            <footer class="mt-4 flex flex-wrap items-center gap-4">
-                                <form method="POST" action="{{ route('message.read', $message->id) }}">
-                                    @csrf
-                                    @method('patch')
-                                    <button type="submit" class="text-sm text-white hover:text-blue-400">
-                                        {{ $message->is_read ? 'Mark as unread' : 'Mark as read' }}
-                                    </button>
-                                </form>
-
-                                <x-danger-button type="button" data-toggle="delete-button"
-                                    href="{{ route('message.destroy', $message->id) }}"
-                                    class="text-xs">
-                                    Delete
-                                </x-danger-button>
-                            </footer>
-                        </article>
-                    @empty
-                        <p class="py-8 text-center text-gray-500">
-                            No messages yet. They arrive from the contact form on the public site.
+                        <p class="mt-4 whitespace-pre-line text-sm leading-relaxed text-bone-300">
+                            {{ $message->message }}
                         </p>
-                    @endforelse
 
-                    <div class="pt-2">
-                        {{ $messages->links() }}
+                        <footer class="mt-4 flex flex-wrap items-center gap-3 border-t border-ink-700/60 pt-3">
+                            <a
+                                href="mailto:{{ $message->email }}?subject={{ rawurlencode('Re: '.($message->subject ?: 'Your message')) }}"
+                                class="inline-flex items-center gap-1.5 rounded-lg border border-ink-600 bg-ink-850 px-3 py-1.5 text-sm text-bone-200 transition-colors hover:border-ink-500 hover:bg-ink-800"
+                            >
+                                <x-portfolio.icon name="mail" class="h-3.5 w-3.5" />
+                                Reply
+                            </a>
+
+                            {{-- Existing read/unread toggle, unchanged endpoint. --}}
+                            <form method="POST" action="{{ route('message.read', $message->id) }}">
+                                @csrf
+                                @method('patch')
+                                <button
+                                    type="submit"
+                                    class="rounded-lg px-3 py-1.5 text-sm text-bone-400 transition-colors hover:bg-ink-800 hover:text-bone-100"
+                                >
+                                    {{ $message->is_read ? 'Mark as unread' : 'Mark as read' }}
+                                </button>
+                            </form>
+
+                            {{-- Preserves the existing delete confirmation chain. --}}
+                            <x-admin.button
+                                variant="danger-ghost"
+                                size="sm"
+                                icon="close"
+                                data-toggle="delete-button"
+                                :href="route('message.destroy', $message->id)"
+                                class="ml-auto"
+                            >
+                                Delete
+                            </x-admin.button>
+                        </footer>
                     </div>
-                </div>
-            </div>
+                </article>
+            @endforeach
         </div>
-    </div>
+
+        {{-- Laravel's default Tailwind paginator; restyled below to match Admin V2. --}}
+        <div class="mt-6">
+            {{ $messages->links() }}
+        </div>
+    @endif
 </x-app-layout>

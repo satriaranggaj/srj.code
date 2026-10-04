@@ -1,55 +1,67 @@
-<section class="space-y-6">
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Delete Account') }}
-        </h2>
+{{--
+    Account deletion. The x-modal confirmation flow is Breeze behaviour and is
+    preserved exactly; only the presentation changes.
+--}}
+<div>
+    <p class="text-sm leading-relaxed text-bone-400">
+        Once your account is deleted, all of its resources and data will be permanently
+        deleted. Before deleting your account, please download any data or information
+        that you wish to retain.
+    </p>
 
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.') }}
-        </p>
-    </header>
-
-    <x-danger-button
+    <x-admin.button
+        variant="danger"
+        icon="close"
+        class="mt-4"
         x-data=""
         x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
-    >{{ __('Delete Account') }}</x-danger-button>
+    >
+        Delete account
+    </x-admin.button>
+</div>
 
-    <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
-        <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
-            @csrf
-            @method('delete')
+<x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
+    <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
+        @csrf
+        @method('delete')
 
-            <h2 class="text-lg font-medium text-gray-900">
-                {{ __('Are you sure you want to delete your account?') }}
-            </h2>
+        <h2 class="text-lg font-semibold text-bone-50">
+            Are you sure you want to delete your account?
+        </h2>
 
-            <p class="mt-1 text-sm text-gray-600">
-                {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
-            </p>
+        <p class="mt-2 text-sm leading-relaxed text-bone-400">
+            Once your account is deleted, all of its resources and data will be permanently
+            deleted. Please enter your password to confirm you would like to permanently
+            delete your account.
+        </p>
 
-            <div class="mt-6">
-                <x-input-label for="password" value="{{ __('Password') }}" class="sr-only" />
-
-                <x-text-input
+        <div class="mt-6">
+            <x-admin.field for="password" label="Password">
+                <x-admin.input
                     id="password"
                     name="password"
                     type="password"
-                    class="mt-1 block w-3/4"
-                    placeholder="{{ __('Password') }}"
+                    :invalid="$errors->userDeletion->has('password')"
+                    autocomplete="current-password"
+                    required
+                    autofocus
+                    placeholder="••••••••••••"
                 />
 
-                <x-input-error :messages="$errors->userDeletion->get('password')" class="mt-2" />
-            </div>
+                @if ($errors->userDeletion->has('password'))
+                    <p class="text-xs text-red-300">{{ $errors->userDeletion->first('password') }}</p>
+                @endif
+            </x-admin.field>
+        </div>
 
-            <div class="mt-6 flex justify-end">
-                <x-secondary-button x-on:click="$dispatch('close')">
-                    {{ __('Cancel') }}
-                </x-secondary-button>
+        <div class="mt-6 flex flex-wrap justify-end gap-3">
+            <x-admin.button variant="ghost" x-on:click="$dispatch('close')">
+                Cancel
+            </x-admin.button>
 
-                <x-danger-button class="ms-3">
-                    {{ __('Delete Account') }}
-                </x-danger-button>
-            </div>
-        </form>
-    </x-modal>
-</section>
+            <x-admin.button variant="danger">
+                Delete account
+            </x-admin.button>
+        </div>
+    </form>
+</x-modal>

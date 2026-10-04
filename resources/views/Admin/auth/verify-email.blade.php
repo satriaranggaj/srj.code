@@ -1,30 +1,35 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
+<x-guest-layout title="Verify email">
+    <div class="mb-8">
+        <h1 class="text-2xl font-semibold tracking-tightest text-bone-50">
+            Verify your email
+        </h1>
+
+        <p class="mt-2 text-sm leading-relaxed text-bone-400">
+            Before you get started, confirm your e-mail address by opening the link we just sent you.
+        </p>
     </div>
 
     @if (session('status') == 'verification-link-sent')
-        <div class="mb-4 font-medium text-sm text-green-600">
-            {{ __('A new verification link has been sent to the email address you provided during registration.') }}
-        </div>
+        <x-admin.alert type="success" class="mb-6" title="Link sent">
+            A new verification link has been sent to the e-mail address on your account.
+        </x-admin.alert>
     @endif
 
-    <div class="mt-4 flex items-center justify-between">
+    <div class="space-y-4">
         <form method="POST" action="{{ route('verification.send') }}">
             @csrf
-
-            <div>
-                <x-primary-button>
-                    {{ __('Resend Verification Email') }}
-                </x-primary-button>
-            </div>
+            <x-admin.button type="submit" size="lg" class="w-full">
+                Resend verification email
+            </x-admin.button>
         </form>
 
         <form method="POST" action="{{ route('logout') }}">
             @csrf
-
-            <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                {{ __('Log Out') }}
+            <button
+                type="submit"
+                class="w-full rounded-lg px-4 py-2.5 text-sm text-bone-400 transition-colors duration-150 hover:bg-ink-850 hover:text-bone-100"
+            >
+                Log out
             </button>
         </form>
     </div>

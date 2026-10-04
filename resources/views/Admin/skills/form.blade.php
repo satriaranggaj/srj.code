@@ -1,118 +1,132 @@
-<x-app-layout>
-    <x-slot name="header">
-        <div class="flex items-center justify-between flex-wrap gap-3">
-            <h2 class="font-semibold text-xl text-gray-100 leading-tight">
-                {{ isset($data) ? 'Edit technology' : 'New technology' }}
-            </h2>
-        </div>
+<x-app-layout
+    title="{{ isset($data) ? 'Edit technology' : 'New technology' }}"
+    subtitle="{{ isset($data) ? $data->display_name : 'Add a technology to the portfolio tech stack.' }}"
+>
+    <x-slot name="actions">
+        <x-admin.button :href="route('skill.index')" variant="ghost" size="sm" icon="arrow-left">
+            Back
+        </x-admin.button>
     </x-slot>
 
-    <form method="post"
+    <form
+        method="post"
         action="{{ isset($data) ? route('skill.update', $data->id) : route('skill.store') }}"
         enctype="multipart/form-data"
-        class="mt-6 space-y-6">
+        class="mx-auto max-w-2xl space-y-5"
+    >
         @csrf
         @isset($data)
             @method('put')
         @endisset
 
-        <div class="py-12">
-            <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-primary-900 md:border border-primary-700 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="border-b border-primary-700 px-6 py-4">
-                        <h3 class="font-semibold text-white">Technology</h3>
-                        <p class="mt-1 text-sm text-gray-400">
-                            The name is what appears as a badge on the public site. The logo is optional.
-                        </p>
-                    </div>
+        <x-admin.panel title="Technology" description="The name is what appears as a badge on the public site. The logo is optional.">
+            <div class="space-y-5">
+                <x-admin.field for="name" label="Name" required>
+                    <x-admin.input
+                        id="name"
+                        name="name"
+                        type="text"
+                        maxlength="60"
+                        :value="old('name', $data->name ?? null)"
+                        :invalid="$errors->has('name')"
+                        placeholder="Laravel"
+                        required
+                        autofocus
+                    />
 
-                    <div class="p-6 text-gray-100 space-y-5">
-                        <div>
-                            <x-input-label for="name" value="Name" class="text-gray-200" />
-                            <x-text-input id="name" name="name" type="text" maxlength="60"
-                                placeholder="Laravel"
-                                class="mt-1 block w-full"
-                                :value="old('name', $data->name ?? null)" autofocus />
-                            <x-input-error class="mt-2" :messages="$errors->get('name')" />
-                        </div>
+                    @error('name')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                </x-admin.field>
 
-                        <div>
-                            <x-input-label for="category" value="Category" class="text-gray-200" />
-                            <select id="category" name="category"
-                                class="mt-1 block w-full rounded-md border-primary-700 bg-primary-800 text-gray-100">
-                                <option value="">— Uncategorised —</option>
-                                @foreach ($categories ?? [] as $category)
-                                    <option value="{{ $category }}" @selected(old('category', $data->category ?? null) === $category)>
-                                        {{ $category }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <p class="mt-1 text-xs text-gray-400">
-                                Groups the badge under the matching heading on the public site.
-                            </p>
-                            <x-input-error class="mt-2" :messages="$errors->get('category')" />
-                        </div>
+                <x-admin.field for="category" label="Category" help="Groups the badge under the matching heading on the public site.">
+                    <x-admin.select
+                        id="category"
+                        name="category"
+                        :options="array_combine($categories ?? [], $categories ?? [])"
+                        :selected="old('category', $data->category ?? null)"
+                        :placeholder="'— Uncategorised —'"
+                        :invalid="$errors->has('category')"
+                    />
 
-                        <div>
-                            <x-input-label for="url" value="Reference URL" class="text-gray-200" />
-                            <x-text-input id="url" name="url" type="url" placeholder="https://laravel.com"
-                                class="mt-1 block w-full"
-                                :value="old('url', $data->url ?? null)" />
-                            <p class="mt-1 text-xs text-gray-400">Optional. Makes the badge a link.</p>
-                            <x-input-error class="mt-2" :messages="$errors->get('url')" />
-                        </div>
+                    @error('category')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                </x-admin.field>
 
-                        <div>
-                            <x-input-label for="sort_order" value="Sort order" class="text-gray-200" />
-                            <x-text-input id="sort_order" name="sort_order" type="number" min="0" max="65535"
-                                class="mt-1 block w-full"
-                                :value="old('sort_order', $data->sort_order ?? 0)" />
-                            <x-input-error class="mt-2" :messages="$errors->get('sort_order')" />
-                        </div>
+                <x-admin.field for="url" label="Reference URL" help="Optional. Makes the badge a link.">
+                    <x-admin.input
+                        id="url"
+                        name="url"
+                        type="url"
+                        :value="old('url', $data->url ?? null)"
+                        :invalid="$errors->has('url')"
+                        placeholder="https://laravel.com"
+                    />
 
-                        <div>
-                            <x-input-label for="image" value="Logo" class="text-gray-200" />
+                    @error('url')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                </x-admin.field>
 
-                            @if (isset($data) && $data->logoUrl())
-                                <img src="{{ $data->logoUrl() }}" alt="Current logo"
-                                    class="mt-2 h-20 w-20 rounded-lg border border-primary-700 bg-white/5 object-contain p-2">
-                            @endif
+                <x-admin.field for="sort_order" label="Sort order" help="Lower numbers appear first.">
+                    <x-admin.input
+                        id="sort_order"
+                        name="sort_order"
+                        type="number"
+                        min="0"
+                        max="65535"
+                        :value="old('sort_order', $data->sort_order ?? 0)"
+                        :invalid="$errors->has('sort_order')"
+                        class="font-mono"
+                    />
 
-                            <input id="image" name="image" type="file"
-                                accept="image/jpeg,image/png,image/webp,image/svg+xml"
-                                class="mt-2 block w-full text-sm text-gray-400 file:mr-4 file:rounded-md file:border-0 file:bg-primary-700 file:px-4 file:py-2 file:text-sm file:font-medium file:text-gray-100 hover:file:bg-primary-600">
+                    @error('sort_order')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
+                </x-admin.field>
 
-                            <p class="mt-1 text-xs text-gray-400">
-                                Optional. Square PNG or SVG works best. Maximum 512 KB.
-                            </p>
-                            <x-input-error class="mt-2" :messages="$errors->get('image')" />
+                <x-admin.field for="image" label="Logo" help="Optional. Square PNG or SVG works best. Maximum 512 KB.">
+                    @if (isset($data) && $data->logoUrl())
+                        <img
+                            src="{{ $data->logoUrl() }}"
+                            alt="Current logo"
+                            class="mb-3 h-20 w-20 rounded-lg border border-ink-700 bg-white/5 object-contain p-2"
+                        >
+                    @endif
 
-                            @if (isset($data) && $data->image)
-                                <label class="mt-3 inline-flex items-center gap-2 text-sm text-gray-300">
-                                    <input type="checkbox" name="remove_image" value="1"
-                                        class="rounded border-primary-600 bg-primary-800 text-red-500 focus:ring-red-500">
-                                    Remove current logo
-                                </label>
-                            @endif
-                        </div>
-                    </div>
-                </div>
+                    <input
+                        id="image"
+                        name="image"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/svg+xml"
+                        class="block w-full text-sm text-bone-400 file:mr-3 file:rounded-lg file:border-0 file:bg-ink-800 file:px-3.5 file:py-2 file:text-sm file:font-medium file:text-bone-100 file:hover:bg-ink-700"
+                    >
 
-                <div class="flex flex-wrap items-center justify-end gap-3 mt-6">
-                    @isset($data)
-                        <x-danger-button type="button" data-toggle="delete-button"
-                            href="{{ route('skill.destroy', $data->id) }}" class="mr-auto">
-                            Delete
-                        </x-danger-button>
-                    @endisset
+                    @error('image')<p class="text-xs text-red-300">{{ $message }}</p>@enderror
 
-                    <x-back-button as="a" href="{{ route('skill.index') }}">Cancel</x-back-button>
-
-                    <x-primary-button type="submit" class="bg-primary">
-                        {{ isset($data) ? 'Save changes' : 'Create technology' }}
-                    </x-primary-button>
-                </div>
+                    @if (isset($data) && $data->image)
+                        <x-admin.checkbox
+                            class="mt-3"
+                            name="remove_image"
+                            value="1"
+                            label="Remove current logo"
+                        />
+                    @endif
+                </x-admin.field>
             </div>
+        </x-admin.panel>
+
+        <div class="flex flex-wrap items-center gap-3 border-t border-ink-700/70 pt-5">
+            @isset($data)
+                <x-admin.button
+                    variant="danger-ghost"
+                    icon="close"
+                    data-toggle="delete-button"
+                    :href="route('skill.destroy', $data->id)"
+                    class="sm:mr-auto"
+                >
+                    Delete
+                </x-admin.button>
+            @endisset
+
+            <x-admin.button :href="route('skill.index')" variant="ghost">Cancel</x-admin.button>
+
+            <x-admin.button type="submit">
+                {{ isset($data) ? 'Save changes' : 'Create technology' }}
+            </x-admin.button>
         </div>
     </form>
 </x-app-layout>

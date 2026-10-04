@@ -1,15 +1,16 @@
-{{-- check 'as' attribute --}}
+﻿{{-- Restyled onto the Portfolio V2 tokens. --}}
 @props(['as' => 'button'])
 
-{{-- check 'type' attribute --}}
+@php
+    $classes = 'inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-bone-400 transition-colors duration-150 hover:bg-ink-850 hover:text-bone-100 focus:outline-none disabled:opacity-25';
+@endphp
+
 @if ($as == 'button')
-    <button
-        {{ $attributes->merge(['type' => 'button', 'class' => 'inline-flex items-center px-4 py-2 bg-gray-300 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150']) }}>
+    <button {{ $attributes->merge(['type' => 'button', 'class' => $classes]) }}>
         {{ $slot }}
     </button>
 @else
-    <a
-        {{ $attributes->merge(['class' => 'inline-flex items-center px-4 py-2 bg-gray-300 border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150']) }}>
+    <a {{ $attributes->merge(['class' => $classes]) }}>
         {{ $slot }}
     </a>
 @endif

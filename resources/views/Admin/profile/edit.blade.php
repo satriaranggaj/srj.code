@@ -1,29 +1,20 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Profile') }}
-        </h2>
-    </x-slot>
+<x-app-layout title="Profile" subtitle="Your account details and password.">
+    <div class="mx-auto max-w-2xl space-y-5">
+        <x-admin.panel title="Profile information" description="Update your account's name and email address.">
+            @include('Admin.profile.partials.update-profile-information-form')
+        </x-admin.panel>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('Admin.profile.partials.update-profile-information-form')
-                </div>
-            </div>
+        <x-admin.panel title="Password" description="Ensure your account is using a long, random password to stay secure.">
+            @include('Admin.profile.partials.update-password-form')
+        </x-admin.panel>
 
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('Admin.profile.partials.update-password-form')
-                </div>
-            </div>
+        {{-- Destructive action, visually distinct from every other panel. --}}
+        <x-admin.panel>
+            <x-slot name="header">
+                <span class="text-sm font-semibold text-red-300">Danger zone</span>
+            </x-slot>
 
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('Admin.profile.partials.delete-user-form')
-                </div>
-            </div>
-        </div>
+            @include('Admin.profile.partials.delete-user-form')
+        </x-admin.panel>
     </div>
 </x-app-layout>

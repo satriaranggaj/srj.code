@@ -1,47 +1,94 @@
-<x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+@props(['title' => null])
 
-    <form method="POST" action="{{ route('login') }}">
+<x-guest-layout title="{{ $title ?? 'Sign in' }}">
+    <div class="mb-8">
+        <h1 class="text-2xl font-semibold tracking-tightest text-bone-50">
+            Welcome back
+        </h1>
+
+        <p class="mt-2 text-sm leading-relaxed text-bone-400">
+            Sign in to manage the {{ config('portfolio.short_name') }} Portfolio.
+        </p>
+    </div>
+
+    {{-- Session status, e.g. after a password reset. --}}
+    @if (session('status'))
+        <x-admin.alert type="success" class="mb-6">
+            {{ session('status') }}
+        </x-admin.alert>
+    @endif
+
+    <form method="POST" action="{{ route('login') }}" class="space-y-5">
         @csrf
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+        <x-admin.field for="email" label="Email" required>
+            <x-admin.input
+                id="email"
+                name="email"
+                type="email"
+                :value="old('email')"
+                :invalid="$errors->has('email')"
+                autocomplete="username"
+                inputmode="email"
+                required
+                autofocus
+                placeholder="you@example.com"
+            />
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+            @error('email')
+                <p class="text-xs text-red-300">{{ $message }}</p>
+            @enderror
+        </x-admin.field>
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+        <x-admin.field for="password" label="Password" required>
+            {{--
+                Password visibility toggle. Alpine only, no dependency.
+                The button is a real <button type="button"> so it is keyboard
+                reachable and never submits the form.
+            --}}
+            <div x-data="{ show: false }" class="relative">
+                <x-admin.input
+                    id="password"
+                    name="password"
+                    x-bind:type="show ? 'text' : 'password'"
+                    :invalid="$errors->has('password')"
+                    autocomplete="current-password"
+                    required
+                    placeholder="••••••••••••"
+                    class="pr-11"
+                />
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+                <button
+                    type="button"
+                    x-on:click="show = ! show"
+                    x-bind:aria-label="show ? 'Hide password' : 'Show password'"
+                    class="absolute right-1 top-1/2 -translate-y-1/2 rounded-md p-2 text-bone-500 transition-colors duration-150 hover:bg-ink-800 hover:text-bone-200"
+                >
+                    <x-portfolio.icon name="eye" class="h-4 w-4" x-show="! show" />
+                    <x-portfolio.icon name="eye-off" class="hidden h-4 w-4" x-show="show" x-cloak />
+                </button>
+            </div>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
+            @error('password')
+                <p class="text-xs text-red-300">{{ $message }}</p>
+            @enderror
+        </x-admin.field>
 
-        <div class="flex items-center justify-end mt-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+            <x-admin.checkbox name="remember" id="remember_me" label="Remember me" value="1" />
+
             @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
+                <a
+                    href="{{ route('password.request') }}"
+                    class="rounded text-sm text-bone-400 transition-colors duration-150 hover:text-accent-400"
+                >
+                    Forgot password?
                 </a>
             @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
         </div>
+
+        <x-admin.button type="submit" size="lg" class="w-full">
+            Sign in
+        </x-admin.button>
     </form>
 </x-guest-layout>
