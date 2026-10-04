@@ -6,7 +6,7 @@
 @php
     $thumbnail = $project->thumbnailUrl();
     $hasCaseStudy = $project->hasCaseStudy();
-    $liveUrl = $project->liveUrl;
+    $liveUrl = $project->resolved_live_url;
     $githubUrl = $project->github_url;
     $summary = $project->summary;
     $caseStudyUrl = $hasCaseStudy ? route('project.show', $project) : null;
@@ -57,7 +57,9 @@
         <h3 class="text-base font-semibold leading-snug">
             {{-- Whole-card link target, but only when a case study exists. --}}
             @if ($caseStudyUrl)
-                <a href="{{ $caseStudyUrl }}" class="after:absolute after:inset-0 focus-visible:outline-none">
+                {{-- The focus ring must stay: removing it here would leave keyboard users with
+                     no visible indicator on the primary link of the card. --}}
+                <a href="{{ $caseStudyUrl }}" class="after:absolute after:inset-0">
                     {{ $project->title }}
                 </a>
             @else

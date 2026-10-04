@@ -32,16 +32,32 @@ final class PortfolioText
 
     /**
      * Derive a URL-safe slug from arbitrary text.
+     *
+     * camelCase and PascalCase boundaries are treated as word breaks, so
+     * "BarcodeIdentify" becomes "barcode-identify" rather than "barcodeidentify".
      */
     public static function slugify(?string $value): string
     {
-        $slug = Str::slug((string) $value);
+        $text = (string) $value;
+
+        $slug = Str::slug(self::splitCamelCase($text));
 
         if ($slug === '') {
-            $slug = Str::slug((string) preg_replace('/\.[^.]+$/', '', (string) $value));
+            $slug = Str::slug((string) preg_replace('/\.[^.]+$/', '', $text));
         }
 
         return mb_substr($slug, 0, 180);
+    }
+
+    /**
+     * Insert a separator at lower-to-upper transitions and at the last capital of a
+     * run followed by lowercase letters, e.g. "HTTPServer" -> "HTTP Server".
+     */
+    private static function splitCamelCase(string $value): string
+    {
+        $value = preg_replace('/([a-z0-9])([A-Z])/', '$1 $2', $value) ?? $value;
+
+        return preg_replace('/([A-Z]+)([A-Z][a-z])/', '$1 $2', $value) ?? $value;
     }
 
     /**

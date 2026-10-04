@@ -56,15 +56,22 @@ class Project extends Model
     | Accessors
     |--------------------------------------------------------------------------
     |
-    | `link` is the original column and is never removed. Every read of the live
-    | URL goes through the `liveUrl` accessor, which falls back to `link` so rows
-    | before Portfolio V2 keep rendering exactly as they did.
+    | `live_url` and `link` are both real database columns and are always readable
+    | as-is. `resolved_live_url` is the single derived value the public site renders,
+    | so the live_url -> link fallback is defined in exactly one place.
     |
     */
 
-    public function getLiveUrlAttribute(): ?string
+    /**
+     * The live URL actually used for rendering.
+     *
+     * Prefers the explicit `live_url` column and falls back to the legacy `link`
+     * column so records created before Portfolio V2 keep rendering exactly as they
+     * did. Returns null when neither is set.
+     */
+    public function getResolvedLiveUrlAttribute(): ?string
     {
-        // Read the raw column so this accessor does not call itself recursively.
+        // Read the raw attributes so this never shadows or recurses into a column.
         $live = $this->attributes['live_url'] ?? null;
         $legacy = $this->attributes['link'] ?? null;
 
@@ -103,17 +110,46 @@ class Project extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | Scopes
+    | Publication rules
     |--------------------------------------------------------------------------
     |
-    | These replace the removed `Project::rev()` / `Project::lastProject()`
-    | helpers, which loaded the whole table into PHP just to reverse and slice it.
+    | Visibility and case-study availability are defined here once and reused by the
+    | homepage, the listing, the case-study route and the sitemap, so those four can
+    | never disagree about what is public.
     |
     */
 
-    public function scopePublished(Builder $query): Builder
+    /**
+     * Projects that may appear anywhere on the public site.
+     *
+     * `live` and `in_progress` are both public: an in-progress project is real work
+     * and is shown with its status badge. Only `archived` is withdrawn.
+     */
+    public function scopePubliclyVisible(Builder $query): Builder
+    {
+        return $query->whereIn('status', [self::STATUS_LIVE, self::STATUS_IN_PROGRESS]);
+    }
+
+    /**
+     * Archived and unknown statuses are treated as withdrawn.
+     *
+     * Used by `scopePubliclyVisible()`, and kept separate so the admin listing can
+     * still show every status without inheriting a public filter.
+     */
+    public function scopeNotArchived(Builder $query): Builder
     {
         return $query->where('status', '!=', self::STATUS_ARCHIVED);
+    }
+
+    /**
+     * Backwards-compatible alias for the pre-hardening scope name.
+     *
+     * @deprecated Use scopePubliclyVisible(): it states the actual rule instead of
+     *             implying "published", which in-progress projects are not.
+     */
+    public function scopePublished(Builder $query): Builder
+    {
+        return $query->publiclyVisible();
     }
 
     public function scopeFeatured(Builder $query): Builder
@@ -121,14 +157,26 @@ class Project extends Model
         return $query->where('featured', true);
     }
 
+    /**
+     * Publicly visible projects that also have something to read, i.e. the projects
+     * whose case-study URL resolves instead of returning 404.
+     */
+    public function scopeWithPublicCaseStudy(Builder $query): Builder
+    {
+        return $query->where(function (Builder $q) {
+            $q->whereNotNull('description')->where('description', '!=', '')
+                ->orWhereNotNull('problem')->where('problem', '!=', '')
+                ->orWhereNotNull('solution')->where('solution', '!=', '')
+                ->orWhereNotNull('challenges')->where('challenges', '!=', '')
+                ->orWhereNotNull('outcome')->where('outcome', '!=', '')
+                ->orWhereNotNull('highlights')->where('highlights', '!=', '[]')
+                ->orWhereNotNull('screenshots')->where('screenshots', '!=', '[]');
+        });
+    }
+
     public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order')->orderByDesc('created_at')->orderByDesc('id');
-    }
-
-    public function scopeForShowcase(Builder $query, int $limit = 3): Builder
-    {
-        return $query->published()->ordered()->limit($limit);
     }
 
     /*
@@ -160,19 +208,43 @@ class Project extends Model
     }
 
     /**
-     * A case study only makes sense once there is something to read.
+     * Whether a public case study exists for this project.
+     *
+     * This is the single source of truth for case-study availability. It is used by
+     * the project card (to decide whether to render a Case Study link), by
+     * ProjectController::show() (404 when false) and by the sitemap (exclude when
+     * false), so a project can never advertise a case-study URL that 404s.
+     *
+     * A thumbnail is deliberately NOT part of this: missing imagery must never make a
+     * written case study inaccessible.
      */
     public function hasCaseStudy(): bool
     {
         return filled($this->description)
             || filled($this->problem)
             || filled($this->solution)
-            || $this->highlights !== [];
+            || filled($this->challenges)
+            || filled($this->outcome)
+            || $this->highlights !== []
+            || $this->screenshots !== [];
     }
 
-    public function hasLiveUrl(): bool
+    public function isPubliclyVisible(): bool
     {
-        return filled($this->liveUrl);
+        return in_array($this->status, [self::STATUS_LIVE, self::STATUS_IN_PROGRESS], true);
+    }
+
+    /**
+     * Whether /projects/{slug} will actually resolve for this project.
+     */
+    public function hasPublicCaseStudyPage(): bool
+    {
+        return $this->isPubliclyVisible() && $this->hasCaseStudy();
+    }
+
+    public function hasResolvedLiveUrl(): bool
+    {
+        return filled($this->resolved_live_url);
     }
 
     public function hasGithubUrl(): bool
@@ -183,6 +255,18 @@ class Project extends Model
     public function thumbnailUrl(): ?string
     {
         return $this->thumbnail ? asset('storage/'.$this->thumbnail) : null;
+    }
+
+    /**
+     * Root-relative storage path for the thumbnail.
+     *
+     * Used for social preview metadata, where the URL must be built from APP_URL
+     * rather than from the incoming request so og:image can never disagree with the
+     * canonical URL. Prefer this over thumbnailUrl() when composing absolute URLs.
+     */
+    public function thumbnailStoragePath(): ?string
+    {
+        return $this->thumbnail ? 'storage/'.$this->thumbnail : null;
     }
 
     /**

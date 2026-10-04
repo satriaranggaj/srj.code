@@ -2,25 +2,27 @@
     /**
      * Dynamic XML sitemap covering the public pages plus every published case study.
      *
-     * Rendered by ProjectController::sitemap() and served with an
-     * application/xml content type. Referenced from robots.txt.
+     * Rendered by ProjectController::sitemap() and served with an application/xml
+     * content type. The controller supplies only projects whose case-study URL
+     * actually resolves, so nothing listed here returns 404.
+     *
+     * Static pages intentionally carry no <lastmod>: their content lives in code, not
+     * in the database, and a per-request timestamp would falsely report every page
+     * as modified on every crawl. Project URLs use the row's real updated_at.
      */
     $staticPages = [
-        ['loc' => route('home'), 'priority' => '1.0', 'changefreq' => 'weekly'],
-        ['loc' => route('project'), 'priority' => '0.9', 'changefreq' => 'weekly'],
-        ['loc' => route('about'), 'priority' => '0.7', 'changefreq' => 'monthly'],
-        ['loc' => route('certificate'), 'priority' => '0.6', 'changefreq' => 'monthly'],
-        ['loc' => route('contact'), 'priority' => '0.6', 'changefreq' => 'monthly'],
+        ['loc' => route('home'), 'changefreq' => 'weekly', 'priority' => '1.0'],
+        ['loc' => route('project'), 'changefreq' => 'weekly', 'priority' => '0.9'],
+        ['loc' => route('about'), 'changefreq' => 'monthly', 'priority' => '0.7'],
+        ['loc' => route('certificate'), 'changefreq' => 'monthly', 'priority' => '0.6'],
+        ['loc' => route('contact'), 'changefreq' => 'monthly', 'priority' => '0.6'],
     ];
-
-    $lastModified = now()->toAtomString();
 @endphp
 {!! '<?xml version="1.0" encoding="UTF-8"?>' !!}
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 @foreach ($staticPages as $page)
     <url>
         <loc>{{ $page['loc'] }}</loc>
-        <lastmod>{{ $lastModified }}</lastmod>
         <changefreq>{{ $page['changefreq'] }}</changefreq>
         <priority>{{ $page['priority'] }}</priority>
     </url>
@@ -28,7 +30,9 @@
 @foreach ($projects as $project)
     <url>
         <loc>{{ route('project.show', $project) }}</loc>
-        <lastmod>{{ ($project->updated_at ?? now())->toAtomString() }}</lastmod>
+        @if ($project->updated_at)
+            <lastmod>{{ $project->updated_at->toAtomString() }}</lastmod>
+        @endif
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>

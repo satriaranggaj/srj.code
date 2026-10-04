@@ -17,8 +17,8 @@ class HomeController extends Controller
     public function index(): View
     {
         return view('portfolio.home', [
-            'featuredProjects' => Project::featured()->published()->ordered()->limit(6)->get(),
-            'recentProjects' => Project::published()->ordered()->limit(3)->get(),
+            'featuredProjects' => Project::featured()->publiclyVisible()->ordered()->limit(6)->get(),
+            'recentProjects' => Project::publiclyVisible()->ordered()->limit(3)->get(),
             'skills' => Skill::ordered()->get(),
             'certificates' => Certificate::ordered()->limit(3)->get(),
         ]);

@@ -8,7 +8,7 @@
     $screenshots = $project->screenshots;
     $techStack = $project->tech_stack;
     $summary = $project->summary;
-    $liveUrl = $project->liveUrl;
+    $liveUrl = $project->resolved_live_url;
     $githubUrl = $project->github_url;
 
     $caseStudyJsonLd = [
@@ -27,7 +27,7 @@
         $caseStudyJsonLd['description'] = $summary;
     }
 
-    if ($project->thumbnailUrl()) {
+    if ($project->thumbnailStoragePath()) {
         $caseStudyJsonLd['image'] = $project->thumbnailUrl();
     }
 
@@ -47,7 +47,11 @@
         $caseStudyJsonLd['dateCreated'] = $project->year;
     }
 
-    $metaImage = $project->thumbnailUrl() ?: config('portfolio.seo.og_image');
+    /*
+     * Passed as a root-relative storage path, not asset(): the SEO component builds
+     * the absolute URL from APP_URL so og:image always matches the canonical host.
+     */
+    $metaImage = $project->thumbnailStoragePath() ?: config('portfolio.seo.og_image');
 @endphp
 
 <x-layouts.portfolio

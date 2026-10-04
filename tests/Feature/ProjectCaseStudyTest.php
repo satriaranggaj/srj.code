@@ -64,8 +64,10 @@ class ProjectCaseStudyTest extends TestCase
         $this->get(route('project.show', $project))->assertNotFound();
     }
 
-    public function test_missing_case_study_content_hides_the_sections(): void
+    public function test_live_project_without_case_study_content_returns_404(): void
     {
+        // Nothing to read means there is no case-study page. The project still appears
+        // on /projects as a card, it just has no Case Study link.
         $project = Project::factory()->create([
             'slug' => 'minimal',
             'description' => null,
@@ -74,16 +76,118 @@ class ProjectCaseStudyTest extends TestCase
             'highlights' => null,
             'challenges' => null,
             'outcome' => null,
+            'screenshots' => null,
             'tech_stack' => null,
+        ]);
+
+        $this->get(route('project.show', $project))->assertNotFound();
+    }
+
+    public function test_one_meaningful_case_study_block_is_enough(): void
+    {
+        // Only `outcome` is filled: a single meaningful block must publish the page.
+        $project = Project::factory()->create([
+            'slug' => 'outcome-only',
+            'description' => null,
+            'problem' => null,
+            'solution' => null,
+            'highlights' => null,
+            'challenges' => null,
+            'screenshots' => null,
+            'outcome' => 'Deployed on a Linux VPS behind Nginx.',
+        ]);
+
+        $this->assertTrue($project->hasCaseStudy());
+
+        $response = $this->get(route('project.show', $project));
+
+        $response->assertOk();
+        $response->assertSee('Deployed on a Linux VPS behind Nginx.');
+        $response->assertDontSee('Key features');
+    }
+
+    public function test_screenshots_alone_publish_a_case_study(): void
+    {
+        $project = Project::factory()->create([
+            'slug' => 'screenshot-only',
+            'description' => null,
+            'problem' => null,
+            'solution' => null,
+            'highlights' => null,
+            'challenges' => null,
+            'outcome' => null,
+            'screenshots' => ['projects/screenshots/one.png'],
+        ]);
+
+        $this->get(route('project.show', $project))->assertOk();
+    }
+
+    public function test_a_project_without_a_thumbnail_is_still_public(): void
+    {
+        // Missing imagery must never make a written case study inaccessible.
+        $project = Project::factory()->create([
+            'slug' => 'no-image',
+            'thumbnail' => null,
+            'description' => 'A written case study with no screenshot yet.',
+        ]);
+
+        $this->get(route('project.show', $project))
+            ->assertOk()
+            ->assertSee('A written case study with no screenshot yet.');
+    }
+
+    public function test_in_progress_project_with_case_study_is_public(): void
+    {
+        $project = Project::factory()->create([
+            'slug' => 'in-progress',
+            'status' => Project::STATUS_IN_PROGRESS,
         ]);
 
         $response = $this->get(route('project.show', $project));
 
         $response->assertOk();
-        $response->assertSee('minimal');
-        $response->assertDontSee('Key features');
-        $response->assertDontSee('Challenges');
-        $response->assertDontSee('Outcome');
+        $response->assertSee('In progress');
+    }
+
+    public function test_archived_project_with_case_study_returns_404(): void
+    {
+        $project = Project::factory()->archived()->create([
+            'slug' => 'archived-with-content',
+            'description' => 'Full case study text that exists but is withdrawn.',
+        ]);
+
+        $this->get(route('project.show', $project))->assertNotFound();
+    }
+
+    public function test_card_shows_case_study_link_only_when_one_exists(): void
+    {
+        $withCaseStudy = Project::factory()->create([
+            'slug' => 'has-case-study',
+            'title' => 'Has Case Study',
+            'description' => 'Something to read here.',
+        ]);
+
+        $withoutCaseStudy = Project::factory()->create([
+            'slug' => 'no-case-study',
+            'title' => 'No Case Study',
+            'description' => null,
+            'problem' => null,
+            'solution' => null,
+            'highlights' => null,
+            'challenges' => null,
+            'outcome' => null,
+            'screenshots' => null,
+        ]);
+
+        $response = $this->get(route('project'));
+
+        $response->assertOk();
+        $response->assertSee('Case study');
+        $response->assertSee(route('project.show', $withCaseStudy), false);
+
+        // The project without a case study is still listed, just without that link.
+        $response->assertSee('No Case Study');
+        $response->assertDontSee(route('project.show', $withoutCaseStudy), false);
     }
 
     public function test_case_study_never_renders_an_iframe(): void
