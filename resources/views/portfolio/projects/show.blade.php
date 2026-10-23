@@ -348,7 +348,7 @@
                             rel="noopener noreferrer"
                             class="group flex items-center justify-between gap-4 rounded-xl border border-ink-700/80 bg-ink-850/40 p-5 transition-all duration-200 hover:border-ink-600 hover:bg-ink-800/60"
                         >
-                            <span class="min-w-0">
+                            <span class="min-w-0 flex-1">
                                 <span class="block text-sm font-medium text-bone-100">Live demo</span>
                                 <span class="mt-0.5 block truncate font-mono text-xs text-bone-500">{{ $liveUrl }}</span>
                             </span>
@@ -363,7 +363,7 @@
                             rel="noopener noreferrer"
                             class="group flex items-center justify-between gap-4 rounded-xl border border-ink-700/80 bg-ink-850/40 p-5 transition-all duration-200 hover:border-ink-600 hover:bg-ink-800/60"
                         >
-                            <span class="min-w-0">
+                            <span class="min-w-0 flex-1">
                                 <span class="block text-sm font-medium text-bone-100">Source code</span>
                                 <span class="mt-0.5 block truncate font-mono text-xs text-bone-500">{{ $githubUrl }}</span>
                             </span>
