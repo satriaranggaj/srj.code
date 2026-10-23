@@ -10,6 +10,10 @@
     <title>{{ $title ?? config('app.name') }} · {{ config('portfolio.short_name') }} Admin</title>
 
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+    <link rel="icon" type="image/png" href="{{ asset('favicon-16x16.png') }}" sizes="16x16">
+    <link rel="icon" type="image/png" href="{{ asset('favicon-32x32.png') }}" sizes="32x32">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}" sizes="180x180">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>

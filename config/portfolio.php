@@ -258,7 +258,9 @@ return [
 
     'seo' => [
         'title' => 'Satria Rangga Jati — Full Stack Developer, AI-Powered Web Applications',
-        'og_image' => 'img/og-default.svg',
+        'og_image' => 'img/og-default.png',
+        'og_image_width' => 1200,
+        'og_image_height' => 630,
         'twitter_site' => env('PORTFOLIO_TWITTER_SITE'),
     ],
 

@@ -6,6 +6,7 @@ use App\Models\Certificate;
 use App\Models\Project;
 use App\Models\Skill;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\URL;
 use Tests\TestCase;
 
 /**
@@ -26,6 +27,7 @@ class SeoMetadataTest extends TestCase
         parent::setUp();
 
         config(['app.url' => self::PRODUCTION_URL]);
+        URL::forceRootUrl(self::PRODUCTION_URL);
     }
 
     /**
@@ -261,5 +263,86 @@ class SeoMetadataTest extends TestCase
         $this->get('/about')->assertOk()->assertSee('FAISS');
         $this->get('/certificates')->assertOk()->assertSee('Backend Certification');
         $this->get('/projects')->assertOk()->assertSee('Undangly');
+    }
+
+    public function test_favicon_assets_exist_and_are_non_empty(): void
+    {
+        foreach ([
+            'favicon.svg',
+            'favicon.ico',
+            'favicon-16x16.png',
+            'favicon-32x32.png',
+            'favicon-192x192.png',
+            'favicon-512x512.png',
+            'apple-touch-icon.png',
+            'site.webmanifest',
+        ] as $relative) {
+            $this->assertFileExists(public_path($relative), "Favicon asset missing: {$relative}");
+            $this->assertGreaterThan(0, filesize(public_path($relative)), "Favicon asset empty: {$relative}");
+        }
+    }
+
+    public function test_favicon_ico_has_valid_header(): void
+    {
+        $contents = file_get_contents(public_path('favicon.ico'));
+        $this->assertSame('00000100', bin2hex(substr($contents, 0, 4)));
+    }
+
+    public function test_favicon_png_assets_have_valid_signatures(): void
+    {
+        foreach ([
+            'favicon-16x16.png',
+            'favicon-32x32.png',
+            'favicon-192x192.png',
+            'favicon-512x512.png',
+            'apple-touch-icon.png',
+        ] as $relative) {
+            $this->assertSame(
+                '89504e47',
+                bin2hex(file_get_contents(public_path($relative), false, null, 0, 4)),
+                "Invalid PNG signature: {$relative}"
+            );
+        }
+    }
+
+    public function test_public_layout_references_favicon_and_manifest(): void
+    {
+        $html = $this->get('/')->assertOk()->getContent();
+
+        foreach ([
+            sprintf('href="%s" type="image/svg+xml"', asset('favicon.svg')),
+            sprintf('href="%s" sizes="any"', asset('favicon.ico')),
+            sprintf('href="%s" sizes="32x32"', asset('favicon-32x32.png')),
+            sprintf('href="%s" sizes="180x180"', asset('apple-touch-icon.png')),
+            sprintf('href="%s"', asset('site.webmanifest')),
+        ] as $tag) {
+            $this->assertStringContainsString($tag, $html, "Missing favicon tag: {$tag}");
+        }
+    }
+
+    public function test_default_og_image_is_valid_png_with_expected_dimensions(): void
+    {
+        $path = public_path(ltrim(config('portfolio.seo.og_image'), '/'));
+
+        $this->assertFileExists($path);
+        $this->assertSame('89504e47', bin2hex(file_get_contents($path, false, null, 0, 4)));
+
+        [$width, $height] = getimagesize($path);
+        $this->assertSame(config('portfolio.seo.og_image_width'), $width);
+        $this->assertSame(config('portfolio.seo.og_image_height'), $height);
+
+        $html = $this->get('/')->getContent();
+        $this->assertStringContainsString(
+            'property="og:image:type" content="image/png"',
+            $html
+        );
+        $this->assertStringContainsString(
+            'property="og:image:width" content="1200"',
+            $html
+        );
+        $this->assertStringContainsString(
+            'property="og:image:height" content="630"',
+            $html
+        );
     }
 }

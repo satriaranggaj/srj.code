@@ -76,9 +76,36 @@
 <meta property="og:url" content="{{ $canonicalUrl }}">
 <meta property="og:image" content="{{ $ogImage }}">
 <meta property="og:image:alt" content="{{ $rawTitle }}">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:type" content="image/svg+xml">
+@php
+    $ogImagePath = parse_url($ogImage, PHP_URL_PATH) ?? '';
+    $ogImageExtension = strtolower(pathinfo($ogImagePath, PATHINFO_EXTENSION));
+    $ogImageType = match ($ogImageExtension) {
+        'jpg', 'jpeg' => 'image/jpeg',
+        'png' => 'image/png',
+        'webp' => 'image/webp',
+        'avif' => 'image/avif',
+        default => 'image/svg+xml',
+    };
+
+    $ogImageWidth = null;
+    $ogImageHeight = null;
+    $localImagePath = public_path(ltrim($ogImagePath, '/'));
+
+    if (filled($image) && file_exists($localImagePath) && is_file($localImagePath)) {
+        [$ogImageWidth, $ogImageHeight] = getimagesize($localImagePath);
+    }
+
+    if (! $ogImageWidth) {
+        $ogImageWidth = (int) config('portfolio.seo.og_image_width', 1200);
+        $ogImageHeight = (int) config('portfolio.seo.og_image_height', 630);
+    }
+@endphp
+<meta property="og:image:type" content="{{ $ogImageType }}">
+@if ($ogImageWidth && $ogImageHeight)
+<meta property="og:image:width" content="{{ $ogImageWidth }}">
+<meta property="og:image:height" content="{{ $ogImageHeight }}">
+@endif
+<meta name="twitter:image:alt" content="{{ $rawTitle }}">
 <meta property="og:locale" content="en_US">
 
 {{-- Twitter / X --}}
