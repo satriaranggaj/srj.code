@@ -346,11 +346,11 @@
                             href="{{ $liveUrl }}"
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="group flex items-center justify-between gap-4 rounded-xl border border-ink-700/80 bg-ink-850/40 p-5 transition-all duration-200 hover:border-ink-600 hover:bg-ink-800/60"
+                            class="group flex items-center justify-between gap-4 rounded-xl border border-ink-700/80 bg-ink-850/40 p-5 transition-all duration-200 hover:border-ink-600 hover:bg-ink-800/60 overflow-hidden"
                         >
                             <span class="min-w-0 flex-1">
-                                <span class="block text-sm font-medium text-bone-100">Live demo</span>
-                                <span class="mt-0.5 block truncate font-mono text-xs text-bone-500">{{ $liveUrl }}</span>
+                                <span class="block text-sm font-medium text-bone-100" title="{{ $liveUrl }}">Live demo</span>
+                                <span class="mt-0.5 block max-w-full truncate font-mono text-xs text-bone-500" title="{{ $liveUrl }}">{{ $liveUrl }}</span>
                             </span>
                             <x-portfolio.icon name="external" class="h-4 w-4 shrink-0 text-bone-500 transition-colors group-hover:text-accent-400" />
                         </a>
@@ -361,11 +361,11 @@
                             href="{{ $githubUrl }}"
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="group flex items-center justify-between gap-4 rounded-xl border border-ink-700/80 bg-ink-850/40 p-5 transition-all duration-200 hover:border-ink-600 hover:bg-ink-800/60"
+                            class="group flex items-center justify-between gap-4 rounded-xl border border-ink-700/80 bg-ink-850/40 p-5 transition-all duration-200 hover:border-ink-600 hover:bg-ink-800/60 overflow-hidden"
                         >
                             <span class="min-w-0 flex-1">
-                                <span class="block text-sm font-medium text-bone-100">Source code</span>
-                                <span class="mt-0.5 block truncate font-mono text-xs text-bone-500">{{ $githubUrl }}</span>
+                                <span class="block text-sm font-medium text-bone-100" title="{{ $githubUrl }}">Source code</span>
+                                <span class="mt-0.5 block max-w-full truncate font-mono text-xs text-bone-500" title="{{ $githubUrl }}">{{ $githubUrl }}</span>
                             </span>
                             <x-portfolio.icon name="github" class="h-4 w-4 shrink-0 text-bone-500 transition-colors group-hover:text-accent-400" />
                         </a>
