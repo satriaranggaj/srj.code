@@ -118,4 +118,15 @@
     .link-underline {
         @apply underline decoration-ink-500 underline-offset-4 transition-colors hover:decoration-accent-400;
     }
+
+    /* Pastikan gambar tidak terpotong saat ditampilkan dalam kotak dengan ukuran tetap.
+       Gunakan class `object-contain` pada <img> agar seluruh gambar tetap terlihat
+       tanpa dipotong, dengan area kosong di sekitarnya (letterbox). */
+    .object-contain-custom {
+        object-fit: contain;
+    }
+
+    .object-cover-custom {
+        object-fit: cover;
+    }
 }

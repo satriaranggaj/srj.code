@@ -76,6 +76,9 @@
 <meta property="og:url" content="{{ $canonicalUrl }}">
 <meta property="og:image" content="{{ $ogImage }}">
 <meta property="og:image:alt" content="{{ $rawTitle }}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/svg+xml">
 <meta property="og:locale" content="en_US">
 
 {{-- Twitter / X --}}

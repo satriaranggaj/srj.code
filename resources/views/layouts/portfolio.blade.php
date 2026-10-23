@@ -15,7 +15,7 @@
     />
 
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="{{ asset('frontend/img/icon/srj-icon.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('frontend/img/icon/srj-icon.svg') }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>

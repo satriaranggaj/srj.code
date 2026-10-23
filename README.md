@@ -357,7 +357,7 @@ database/
   seeders/
 docs/PORTFOLIO_V2_AUDIT.md
 public/
-  img/og-default.png     Default social preview image
+  img/og-default.svg     Default social preview image
   favicon.svg
   libraries/             jQuery + Toastr (admin only)
   script/admin.js        Delete confirmation (admin only)
